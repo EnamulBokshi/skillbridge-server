@@ -3,12 +3,15 @@ model Review{
     comment String @db.Text
     rating Float @default(1.00)
 
-    student_id String
-    student Student @relation(fields: [student_id], references: [id])
+    studentId String
+    student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
-    tutor_id String
-    tutor   TutorProfile    @relation(fields: [tutor_id], references: [id])
+    tutorId String
+    tutor TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
 
-    @@index([student_id, id, tutor_id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([studentId, id, tutorId])
     @@map("reviews")
 }

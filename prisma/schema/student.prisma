@@ -5,18 +5,19 @@ enum StudentStatus {
 }
 
 model Student {
-    id         String        @id @default(uuid())
-    sid        String
-    first_name String?
-    last_name  String?
-    userId     String
-    user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-    status     StudentStatus @default(ACTIVE)
+    id String @id @default(uuid())
+    sid String
+    firstName String?
+    lastName String?
+    userId String
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    status StudentStatus @default(ACTIVE)
 
-    bookings  Booking[]
-    reviews     Review[]
-    createdAt DateTime  @default(now())
-    updatedAt DateTime  @default(now())
+    bookings Booking[]
+    reviews Review[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     @@unique([sid])
+    @@map("students")
 }

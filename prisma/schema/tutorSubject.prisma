@@ -1,8 +1,12 @@
 model TutorSubject {
-    id            String       @id @default(uuid())
-    tf_id         String
-    tutor_profile TutorProfile @relation(fields: [tf_id], references: [id], onDelete: Cascade)
-    subject_id    String
-    subject       Subject      @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+    id String @id @default(uuid())
+    tfId String
+    tutorProfile TutorProfile @relation(fields: [tfId], references: [id], onDelete: Cascade)
+    subjectId String
+    subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+    
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    
     @@map("tutorSubjects")
 }

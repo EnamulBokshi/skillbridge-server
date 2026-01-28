@@ -1,18 +1,17 @@
 model Subject {
-    id           String   @id @default(uuid())
-    name         String   @db.Text
-    credit_hours Float
-    categoryId   String
-    category     Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-    slot_price   Int
+    id String @id @default(uuid())
+    name String @db.Text
+    creditHours Float
+    categoryId String
+    category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+    slotPrice Int
 
-    tutorSub    TutorSubject[]
-    bookings    Booking[]
-
+    tutorSubject TutorSubject[]
+    bookings Booking[]
     isActive Boolean
 
     createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     @@map("subject")
 }

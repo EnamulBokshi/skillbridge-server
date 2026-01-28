@@ -4,19 +4,18 @@ model TutorProfile{
     userId String
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     bio String @db.Text
-    avg_rating Float @default(0.0)
-    total_reviews Int @default(0)
+    avgRating Float @default(0.0)
+    totalReviews Int @default(0)
     contactId String
     contact Contact @relation(fields: [contactId], references: [id])
-    total_earned    Float @default(0.0)
+    totalEarned Float @default(0.0)
     
-    slot    Slot[]
-
-    tutor_subject   TutorSubject[]
-    bookings    Booking[]
-    reviews     Review[]
+    slot Slot[]
+    tutorSubject TutorSubject[]
+    bookings Booking[]
+    reviews Review[]
     createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 
     @@map("tutorProfiles")
 }

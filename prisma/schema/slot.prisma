@@ -2,13 +2,16 @@ model Slot{
     id String @id @default(uuid())
     
     date DateTime
-    start_time DateTime
-    end_time DateTime
-    isBooked    Boolean
+    startTime DateTime
+    endTime DateTime
+    isBooked Boolean
     bookings Booking[]
-    tutor_id     String
-    tutor_profile    TutorProfile @relation(fields: [tutor_id], references: [id], onDelete: Cascade) 
+    tutorId String
+    tutorProfile TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade) 
 
-    @@index([id, tutor_id])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([id, tutorId])
     @@map("slots")
 }
