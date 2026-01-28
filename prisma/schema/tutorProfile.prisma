@@ -1,0 +1,33 @@
+model TutorProfile{
+    id String @id @default(uuid())
+    tid String @unique 
+    userId String
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    bio String @db.Text
+    avg_rating Float @default(0.0)
+    total_reviews Int @default(0)
+    contactId String
+    contact Contact @relation(fields: [contactId], references: [id])
+    total_earned    Float @default(0.0)
+    
+    slot    Slot[]
+
+    tutor_subject   TutorSubject[]
+    bookings    Booking[]
+    reviews     Review[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+
+    @@map("tutorProfiles")
+}
+
+model Contact {
+    id String @id @default(uuid())
+    contact_name String
+    contact     String 
+    tutor TutorProfile[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @default(now())
+
+    @@map("contacts")
+}

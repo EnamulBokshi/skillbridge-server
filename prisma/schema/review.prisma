@@ -1,0 +1,14 @@
+model Review{
+    id String @id @default(uuid())
+    comment String @db.Text
+    rating Float @default(1.00)
+
+    student_id String
+    student Student @relation(fields: [student_id], references: [id])
+
+    tutor_id String
+    tutor   TutorProfile    @relation(fields: [tutor_id], references: [id])
+
+    @@index([student_id, id, tutor_id])
+    @@map("reviews")
+}

@@ -1,0 +1,14 @@
+model Slot{
+    id String @id @default(uuid())
+    
+    date DateTime
+    start_time DateTime
+    end_time DateTime
+    isBooked    Boolean
+    bookings Booking[]
+    tutor_id     String
+    tutor_profile    TutorProfile @relation(fields: [tutor_id], references: [id], onDelete: Cascade) 
+
+    @@index([id, tutor_id])
+    @@map("slots")
+}

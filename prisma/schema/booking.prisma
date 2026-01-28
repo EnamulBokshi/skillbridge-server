@@ -1,0 +1,23 @@
+enum BookingStatus{
+    CONFIRMED
+    CANCELD
+    COMPLETED
+}
+
+model Booking{
+    id String @id @default(uuid())
+    tutor_id String 
+    tutor_profile TutorProfile @relation(fields: [tutor_id], references: [id])
+    student_id String
+    student Student @relation(fields: [student_id], references: [id])
+    slot_id String
+    slot Slot @relation(fields: [slot_id], references: [id]) 
+
+    subject_id String
+    subject Subject @relation(fields: [subject_id], references: [id])
+
+
+    @@index([tutor_id, student_id,  slot_id, subject_id])
+    @@map("bookigs")
+
+}

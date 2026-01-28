@@ -1,0 +1,8 @@
+model TutorSubject {
+    id            String       @id @default(uuid())
+    tf_id         String
+    tutor_profile TutorProfile @relation(fields: [tf_id], references: [id], onDelete: Cascade)
+    subject_id    String
+    subject       Subject      @relation(fields: [subject_id], references: [id], onDelete: Cascade)
+    @@map("tutorSubjects")
+}

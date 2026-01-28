@@ -1,0 +1,22 @@
+enum StudentStatus {
+    ACTIVE
+    BAN
+    INACTIVE
+}
+
+model Student {
+    id         String        @id @default(uuid())
+    sid        String
+    first_name String?
+    last_name  String?
+    userId     String
+    user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    status     StudentStatus @default(ACTIVE)
+
+    bookings  Booking[]
+    reviews     Review[]
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @default(now())
+
+    @@unique([sid])
+}
