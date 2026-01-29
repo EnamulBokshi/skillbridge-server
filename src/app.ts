@@ -1,6 +1,6 @@
 // app 
 
-import express, { Application } from "express"
+import express, { Application, Request, Response } from "express"
 import {auth} from './lib/auth';
 import cors from "cors"
 import { toNodeHandler } from "better-auth/node";
@@ -16,6 +16,8 @@ app.use(cors({
 
 app.all('/api/auth/{*any}', toNodeHandler(auth));
 
-
+app.get("/", (req: Request, res: Response) => {
+    res.status(200).json({message: "Welcome to SkillBride Server"});
+})
 
 export default app;
