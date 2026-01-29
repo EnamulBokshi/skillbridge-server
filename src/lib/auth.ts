@@ -30,6 +30,11 @@ export const auth = betterAuth({
         defaultValue: "ACTIVE",
         required: false,
       },
+      isAssociate : {
+        type: "boolean",
+        defaultValue: false,
+        required: false
+      }
     },
   },
   emailAndPassword: {
