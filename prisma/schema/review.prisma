@@ -13,5 +13,5 @@ model Review{
     updatedAt DateTime @updatedAt
 
     @@index([studentId, id, tutorId])
-    @@map("reviews")
+    @@map("review")
 }

@@ -6,10 +6,11 @@ model TutorProfile{
     bio String @db.Text
     avgRating Float @default(0.0)
     totalReviews Int @default(0)
-    contactId String
-    contact Contact @relation(fields: [contactId], references: [id])
     totalEarned Float @default(0.0)
-    
+    phone   String?
+    address     String?
+    email   String?
+    zip     String? 
     slot Slot[]
     tutorSubject TutorSubject[]
     bookings Booking[]
@@ -17,16 +18,6 @@ model TutorProfile{
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@map("tutorProfiles")
+    @@map("tutorProfile")
 }
 
-model Contact {
-    id String @id @default(uuid())
-    contact_name String
-    contact     String 
-    tutor TutorProfile[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
-
-    @@map("contacts")
-}

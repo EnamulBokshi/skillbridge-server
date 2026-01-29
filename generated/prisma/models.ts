@@ -8,6 +8,17 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/User.ts'
+export type * from './models/Session.ts'
+export type * from './models/Account.ts'
+export type * from './models/Verification.ts'
+export type * from './models/Booking.ts'
 export type * from './models/Category.ts'
+export type * from './models/Review.ts'
+export type * from './models/Slot.ts'
+export type * from './models/Student.ts'
 export type * from './models/Subject.ts'
+export type * from './models/TutorProfile.ts'
+export type * from './models/Contact.ts'
+export type * from './models/TutorSubject.ts'
 export type * from './commonInputTypes.ts'

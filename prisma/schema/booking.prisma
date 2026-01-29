@@ -20,6 +20,6 @@ model Booking{
     updatedAt DateTime @updatedAt
     
     @@index([tutorId, studentId, slotId, subjectId])
-    @@map("bookings")
+    @@map("booking")
 
 }

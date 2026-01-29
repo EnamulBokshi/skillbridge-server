@@ -11,7 +11,8 @@ declare global{
                 email: string;
                 name: string;
                 role: string;
-                emailVerified: boolean
+                emailVerified: boolean;
+                isAssociate: boolean;
             }
         }
     }
@@ -38,7 +39,8 @@ const authMiddleware = (...role: UserRole[])=> {
                 email: userSession.user.email,
                 name: userSession.user.name,
                 emailVerified: userSession.user.emailVerified,
-                role: userSession.user.role as string
+                role: userSession.user.role as string,
+                isAssociate: userSession.user.isAssociate as boolean
             }
             if(role.length && !role.includes(req.user.role as UserRole)){
                 errorResponse(res, 403, null, "Forbidden! You are not authorized to access this resource");
@@ -46,6 +48,7 @@ const authMiddleware = (...role: UserRole[])=> {
             };
 
             console.log('Access granted')
+            next();
         } catch (error) {
             console.error(error);
             next(error)

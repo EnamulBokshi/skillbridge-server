@@ -27,41 +27,44 @@ export type AggregateSubject = {
 }
 
 export type SubjectAvgAggregateOutputType = {
-  credit_hours: number | null
-  slot_price: number | null
+  creditHours: number | null
+  slotPrice: number | null
 }
 
 export type SubjectSumAggregateOutputType = {
-  credit_hours: number | null
-  slot_price: number | null
+  creditHours: number | null
+  slotPrice: number | null
 }
 
 export type SubjectMinAggregateOutputType = {
-  sub_id: string | null
+  id: string | null
   name: string | null
-  credit_hours: number | null
+  creditHours: number | null
   categoryId: string | null
-  slot_price: number | null
+  slotPrice: number | null
+  isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type SubjectMaxAggregateOutputType = {
-  sub_id: string | null
+  id: string | null
   name: string | null
-  credit_hours: number | null
+  creditHours: number | null
   categoryId: string | null
-  slot_price: number | null
+  slotPrice: number | null
+  isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type SubjectCountAggregateOutputType = {
-  sub_id: number
+  id: number
   name: number
-  credit_hours: number
+  creditHours: number
   categoryId: number
-  slot_price: number
+  slotPrice: number
+  isActive: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -69,41 +72,44 @@ export type SubjectCountAggregateOutputType = {
 
 
 export type SubjectAvgAggregateInputType = {
-  credit_hours?: true
-  slot_price?: true
+  creditHours?: true
+  slotPrice?: true
 }
 
 export type SubjectSumAggregateInputType = {
-  credit_hours?: true
-  slot_price?: true
+  creditHours?: true
+  slotPrice?: true
 }
 
 export type SubjectMinAggregateInputType = {
-  sub_id?: true
+  id?: true
   name?: true
-  credit_hours?: true
+  creditHours?: true
   categoryId?: true
-  slot_price?: true
+  slotPrice?: true
+  isActive?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type SubjectMaxAggregateInputType = {
-  sub_id?: true
+  id?: true
   name?: true
-  credit_hours?: true
+  creditHours?: true
   categoryId?: true
-  slot_price?: true
+  slotPrice?: true
+  isActive?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type SubjectCountAggregateInputType = {
-  sub_id?: true
+  id?: true
   name?: true
-  credit_hours?: true
+  creditHours?: true
   categoryId?: true
-  slot_price?: true
+  slotPrice?: true
+  isActive?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -196,11 +202,12 @@ export type SubjectGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 export type SubjectGroupByOutputType = {
-  sub_id: string
+  id: string
   name: string
-  credit_hours: number
+  creditHours: number
   categoryId: string
-  slot_price: number
+  slotPrice: number
+  isActive: boolean
   createdAt: Date
   updatedAt: Date
   _count: SubjectCountAggregateOutputType | null
@@ -229,47 +236,57 @@ export type SubjectWhereInput = {
   AND?: Prisma.SubjectWhereInput | Prisma.SubjectWhereInput[]
   OR?: Prisma.SubjectWhereInput[]
   NOT?: Prisma.SubjectWhereInput | Prisma.SubjectWhereInput[]
-  sub_id?: Prisma.StringFilter<"Subject"> | string
+  id?: Prisma.StringFilter<"Subject"> | string
   name?: Prisma.StringFilter<"Subject"> | string
-  credit_hours?: Prisma.FloatFilter<"Subject"> | number
+  creditHours?: Prisma.FloatFilter<"Subject"> | number
   categoryId?: Prisma.StringFilter<"Subject"> | string
-  slot_price?: Prisma.IntFilter<"Subject"> | number
+  slotPrice?: Prisma.IntFilter<"Subject"> | number
+  isActive?: Prisma.BoolFilter<"Subject"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Subject"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Subject"> | Date | string
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
+  tutorSubject?: Prisma.TutorSubjectListRelationFilter
+  bookings?: Prisma.BookingListRelationFilter
 }
 
 export type SubjectOrderByWithRelationInput = {
-  sub_id?: Prisma.SortOrder
+  id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  credit_hours?: Prisma.SortOrder
+  creditHours?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
-  slot_price?: Prisma.SortOrder
+  slotPrice?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   category?: Prisma.CategoryOrderByWithRelationInput
+  tutorSubject?: Prisma.TutorSubjectOrderByRelationAggregateInput
+  bookings?: Prisma.BookingOrderByRelationAggregateInput
 }
 
 export type SubjectWhereUniqueInput = Prisma.AtLeast<{
-  sub_id?: string
+  id?: string
   AND?: Prisma.SubjectWhereInput | Prisma.SubjectWhereInput[]
   OR?: Prisma.SubjectWhereInput[]
   NOT?: Prisma.SubjectWhereInput | Prisma.SubjectWhereInput[]
   name?: Prisma.StringFilter<"Subject"> | string
-  credit_hours?: Prisma.FloatFilter<"Subject"> | number
+  creditHours?: Prisma.FloatFilter<"Subject"> | number
   categoryId?: Prisma.StringFilter<"Subject"> | string
-  slot_price?: Prisma.IntFilter<"Subject"> | number
+  slotPrice?: Prisma.IntFilter<"Subject"> | number
+  isActive?: Prisma.BoolFilter<"Subject"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Subject"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Subject"> | Date | string
   category?: Prisma.XOR<Prisma.CategoryScalarRelationFilter, Prisma.CategoryWhereInput>
-}, "sub_id">
+  tutorSubject?: Prisma.TutorSubjectListRelationFilter
+  bookings?: Prisma.BookingListRelationFilter
+}, "id">
 
 export type SubjectOrderByWithAggregationInput = {
-  sub_id?: Prisma.SortOrder
+  id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  credit_hours?: Prisma.SortOrder
+  creditHours?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
-  slot_price?: Prisma.SortOrder
+  slotPrice?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.SubjectCountOrderByAggregateInput
@@ -283,82 +300,103 @@ export type SubjectScalarWhereWithAggregatesInput = {
   AND?: Prisma.SubjectScalarWhereWithAggregatesInput | Prisma.SubjectScalarWhereWithAggregatesInput[]
   OR?: Prisma.SubjectScalarWhereWithAggregatesInput[]
   NOT?: Prisma.SubjectScalarWhereWithAggregatesInput | Prisma.SubjectScalarWhereWithAggregatesInput[]
-  sub_id?: Prisma.StringWithAggregatesFilter<"Subject"> | string
+  id?: Prisma.StringWithAggregatesFilter<"Subject"> | string
   name?: Prisma.StringWithAggregatesFilter<"Subject"> | string
-  credit_hours?: Prisma.FloatWithAggregatesFilter<"Subject"> | number
+  creditHours?: Prisma.FloatWithAggregatesFilter<"Subject"> | number
   categoryId?: Prisma.StringWithAggregatesFilter<"Subject"> | string
-  slot_price?: Prisma.IntWithAggregatesFilter<"Subject"> | number
+  slotPrice?: Prisma.IntWithAggregatesFilter<"Subject"> | number
+  isActive?: Prisma.BoolWithAggregatesFilter<"Subject"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Subject"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Subject"> | Date | string
 }
 
 export type SubjectCreateInput = {
-  sub_id?: string
+  id?: string
   name: string
-  credit_hours: number
-  slot_price: number
+  creditHours: number
+  slotPrice: number
+  isActive: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.CategoryCreateNestedOneWithoutSubjectInput
+  tutorSubject?: Prisma.TutorSubjectCreateNestedManyWithoutSubjectInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutSubjectInput
 }
 
 export type SubjectUncheckedCreateInput = {
-  sub_id?: string
+  id?: string
   name: string
-  credit_hours: number
+  creditHours: number
   categoryId: string
-  slot_price: number
+  slotPrice: number
+  isActive: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  tutorSubject?: Prisma.TutorSubjectUncheckedCreateNestedManyWithoutSubjectInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutSubjectInput
 }
 
 export type SubjectUpdateInput = {
-  sub_id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  credit_hours?: Prisma.FloatFieldUpdateOperationsInput | number
-  slot_price?: Prisma.IntFieldUpdateOperationsInput | number
+  creditHours?: Prisma.FloatFieldUpdateOperationsInput | number
+  slotPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneRequiredWithoutSubjectNestedInput
+  tutorSubject?: Prisma.TutorSubjectUpdateManyWithoutSubjectNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutSubjectNestedInput
 }
 
 export type SubjectUncheckedUpdateInput = {
-  sub_id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  credit_hours?: Prisma.FloatFieldUpdateOperationsInput | number
+  creditHours?: Prisma.FloatFieldUpdateOperationsInput | number
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  slot_price?: Prisma.IntFieldUpdateOperationsInput | number
+  slotPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tutorSubject?: Prisma.TutorSubjectUncheckedUpdateManyWithoutSubjectNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutSubjectNestedInput
 }
 
 export type SubjectCreateManyInput = {
-  sub_id?: string
+  id?: string
   name: string
-  credit_hours: number
+  creditHours: number
   categoryId: string
-  slot_price: number
+  slotPrice: number
+  isActive: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type SubjectUpdateManyMutationInput = {
-  sub_id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  credit_hours?: Prisma.FloatFieldUpdateOperationsInput | number
-  slot_price?: Prisma.IntFieldUpdateOperationsInput | number
+  creditHours?: Prisma.FloatFieldUpdateOperationsInput | number
+  slotPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type SubjectUncheckedUpdateManyInput = {
-  sub_id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  credit_hours?: Prisma.FloatFieldUpdateOperationsInput | number
+  creditHours?: Prisma.FloatFieldUpdateOperationsInput | number
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
-  slot_price?: Prisma.IntFieldUpdateOperationsInput | number
+  slotPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SubjectScalarRelationFilter = {
+  is?: Prisma.SubjectWhereInput
+  isNot?: Prisma.SubjectWhereInput
 }
 
 export type SubjectListRelationFilter = {
@@ -372,43 +410,60 @@ export type SubjectOrderByRelationAggregateInput = {
 }
 
 export type SubjectCountOrderByAggregateInput = {
-  sub_id?: Prisma.SortOrder
+  id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  credit_hours?: Prisma.SortOrder
+  creditHours?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
-  slot_price?: Prisma.SortOrder
+  slotPrice?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type SubjectAvgOrderByAggregateInput = {
-  credit_hours?: Prisma.SortOrder
-  slot_price?: Prisma.SortOrder
+  creditHours?: Prisma.SortOrder
+  slotPrice?: Prisma.SortOrder
 }
 
 export type SubjectMaxOrderByAggregateInput = {
-  sub_id?: Prisma.SortOrder
+  id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  credit_hours?: Prisma.SortOrder
+  creditHours?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
-  slot_price?: Prisma.SortOrder
+  slotPrice?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type SubjectMinOrderByAggregateInput = {
-  sub_id?: Prisma.SortOrder
+  id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  credit_hours?: Prisma.SortOrder
+  creditHours?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
-  slot_price?: Prisma.SortOrder
+  slotPrice?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type SubjectSumOrderByAggregateInput = {
-  credit_hours?: Prisma.SortOrder
-  slot_price?: Prisma.SortOrder
+  creditHours?: Prisma.SortOrder
+  slotPrice?: Prisma.SortOrder
+}
+
+export type SubjectCreateNestedOneWithoutBookingsInput = {
+  create?: Prisma.XOR<Prisma.SubjectCreateWithoutBookingsInput, Prisma.SubjectUncheckedCreateWithoutBookingsInput>
+  connectOrCreate?: Prisma.SubjectCreateOrConnectWithoutBookingsInput
+  connect?: Prisma.SubjectWhereUniqueInput
+}
+
+export type SubjectUpdateOneRequiredWithoutBookingsNestedInput = {
+  create?: Prisma.XOR<Prisma.SubjectCreateWithoutBookingsInput, Prisma.SubjectUncheckedCreateWithoutBookingsInput>
+  connectOrCreate?: Prisma.SubjectCreateOrConnectWithoutBookingsInput
+  upsert?: Prisma.SubjectUpsertWithoutBookingsInput
+  connect?: Prisma.SubjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SubjectUpdateToOneWithWhereWithoutBookingsInput, Prisma.SubjectUpdateWithoutBookingsInput>, Prisma.SubjectUncheckedUpdateWithoutBookingsInput>
 }
 
 export type SubjectCreateNestedManyWithoutCategoryInput = {
@@ -453,30 +508,106 @@ export type SubjectUncheckedUpdateManyWithoutCategoryNestedInput = {
   deleteMany?: Prisma.SubjectScalarWhereInput | Prisma.SubjectScalarWhereInput[]
 }
 
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type SubjectCreateNestedOneWithoutTutorSubjectInput = {
+  create?: Prisma.XOR<Prisma.SubjectCreateWithoutTutorSubjectInput, Prisma.SubjectUncheckedCreateWithoutTutorSubjectInput>
+  connectOrCreate?: Prisma.SubjectCreateOrConnectWithoutTutorSubjectInput
+  connect?: Prisma.SubjectWhereUniqueInput
+}
+
+export type SubjectUpdateOneRequiredWithoutTutorSubjectNestedInput = {
+  create?: Prisma.XOR<Prisma.SubjectCreateWithoutTutorSubjectInput, Prisma.SubjectUncheckedCreateWithoutTutorSubjectInput>
+  connectOrCreate?: Prisma.SubjectCreateOrConnectWithoutTutorSubjectInput
+  upsert?: Prisma.SubjectUpsertWithoutTutorSubjectInput
+  connect?: Prisma.SubjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.SubjectUpdateToOneWithWhereWithoutTutorSubjectInput, Prisma.SubjectUpdateWithoutTutorSubjectInput>, Prisma.SubjectUncheckedUpdateWithoutTutorSubjectInput>
+}
+
+export type SubjectCreateWithoutBookingsInput = {
+  id?: string
+  name: string
+  creditHours: number
+  slotPrice: number
+  isActive: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.CategoryCreateNestedOneWithoutSubjectInput
+  tutorSubject?: Prisma.TutorSubjectCreateNestedManyWithoutSubjectInput
+}
+
+export type SubjectUncheckedCreateWithoutBookingsInput = {
+  id?: string
+  name: string
+  creditHours: number
+  categoryId: string
+  slotPrice: number
+  isActive: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tutorSubject?: Prisma.TutorSubjectUncheckedCreateNestedManyWithoutSubjectInput
+}
+
+export type SubjectCreateOrConnectWithoutBookingsInput = {
+  where: Prisma.SubjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.SubjectCreateWithoutBookingsInput, Prisma.SubjectUncheckedCreateWithoutBookingsInput>
+}
+
+export type SubjectUpsertWithoutBookingsInput = {
+  update: Prisma.XOR<Prisma.SubjectUpdateWithoutBookingsInput, Prisma.SubjectUncheckedUpdateWithoutBookingsInput>
+  create: Prisma.XOR<Prisma.SubjectCreateWithoutBookingsInput, Prisma.SubjectUncheckedCreateWithoutBookingsInput>
+  where?: Prisma.SubjectWhereInput
+}
+
+export type SubjectUpdateToOneWithWhereWithoutBookingsInput = {
+  where?: Prisma.SubjectWhereInput
+  data: Prisma.XOR<Prisma.SubjectUpdateWithoutBookingsInput, Prisma.SubjectUncheckedUpdateWithoutBookingsInput>
+}
+
+export type SubjectUpdateWithoutBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  creditHours?: Prisma.FloatFieldUpdateOperationsInput | number
+  slotPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.CategoryUpdateOneRequiredWithoutSubjectNestedInput
+  tutorSubject?: Prisma.TutorSubjectUpdateManyWithoutSubjectNestedInput
+}
+
+export type SubjectUncheckedUpdateWithoutBookingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  creditHours?: Prisma.FloatFieldUpdateOperationsInput | number
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  slotPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tutorSubject?: Prisma.TutorSubjectUncheckedUpdateManyWithoutSubjectNestedInput
 }
 
 export type SubjectCreateWithoutCategoryInput = {
-  sub_id?: string
+  id?: string
   name: string
-  credit_hours: number
-  slot_price: number
+  creditHours: number
+  slotPrice: number
+  isActive: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  tutorSubject?: Prisma.TutorSubjectCreateNestedManyWithoutSubjectInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutSubjectInput
 }
 
 export type SubjectUncheckedCreateWithoutCategoryInput = {
-  sub_id?: string
+  id?: string
   name: string
-  credit_hours: number
-  slot_price: number
+  creditHours: number
+  slotPrice: number
+  isActive: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  tutorSubject?: Prisma.TutorSubjectUncheckedCreateNestedManyWithoutSubjectInput
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutSubjectInput
 }
 
 export type SubjectCreateOrConnectWithoutCategoryInput = {
@@ -509,99 +640,220 @@ export type SubjectScalarWhereInput = {
   AND?: Prisma.SubjectScalarWhereInput | Prisma.SubjectScalarWhereInput[]
   OR?: Prisma.SubjectScalarWhereInput[]
   NOT?: Prisma.SubjectScalarWhereInput | Prisma.SubjectScalarWhereInput[]
-  sub_id?: Prisma.StringFilter<"Subject"> | string
+  id?: Prisma.StringFilter<"Subject"> | string
   name?: Prisma.StringFilter<"Subject"> | string
-  credit_hours?: Prisma.FloatFilter<"Subject"> | number
+  creditHours?: Prisma.FloatFilter<"Subject"> | number
   categoryId?: Prisma.StringFilter<"Subject"> | string
-  slot_price?: Prisma.IntFilter<"Subject"> | number
+  slotPrice?: Prisma.IntFilter<"Subject"> | number
+  isActive?: Prisma.BoolFilter<"Subject"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Subject"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Subject"> | Date | string
 }
 
-export type SubjectCreateManyCategoryInput = {
-  sub_id?: string
+export type SubjectCreateWithoutTutorSubjectInput = {
+  id?: string
   name: string
-  credit_hours: number
-  slot_price: number
+  creditHours: number
+  slotPrice: number
+  isActive: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.CategoryCreateNestedOneWithoutSubjectInput
+  bookings?: Prisma.BookingCreateNestedManyWithoutSubjectInput
+}
+
+export type SubjectUncheckedCreateWithoutTutorSubjectInput = {
+  id?: string
+  name: string
+  creditHours: number
+  categoryId: string
+  slotPrice: number
+  isActive: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutSubjectInput
+}
+
+export type SubjectCreateOrConnectWithoutTutorSubjectInput = {
+  where: Prisma.SubjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.SubjectCreateWithoutTutorSubjectInput, Prisma.SubjectUncheckedCreateWithoutTutorSubjectInput>
+}
+
+export type SubjectUpsertWithoutTutorSubjectInput = {
+  update: Prisma.XOR<Prisma.SubjectUpdateWithoutTutorSubjectInput, Prisma.SubjectUncheckedUpdateWithoutTutorSubjectInput>
+  create: Prisma.XOR<Prisma.SubjectCreateWithoutTutorSubjectInput, Prisma.SubjectUncheckedCreateWithoutTutorSubjectInput>
+  where?: Prisma.SubjectWhereInput
+}
+
+export type SubjectUpdateToOneWithWhereWithoutTutorSubjectInput = {
+  where?: Prisma.SubjectWhereInput
+  data: Prisma.XOR<Prisma.SubjectUpdateWithoutTutorSubjectInput, Prisma.SubjectUncheckedUpdateWithoutTutorSubjectInput>
+}
+
+export type SubjectUpdateWithoutTutorSubjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  creditHours?: Prisma.FloatFieldUpdateOperationsInput | number
+  slotPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.CategoryUpdateOneRequiredWithoutSubjectNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutSubjectNestedInput
+}
+
+export type SubjectUncheckedUpdateWithoutTutorSubjectInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  creditHours?: Prisma.FloatFieldUpdateOperationsInput | number
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  slotPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutSubjectNestedInput
+}
+
+export type SubjectCreateManyCategoryInput = {
+  id?: string
+  name: string
+  creditHours: number
+  slotPrice: number
+  isActive: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type SubjectUpdateWithoutCategoryInput = {
-  sub_id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  credit_hours?: Prisma.FloatFieldUpdateOperationsInput | number
-  slot_price?: Prisma.IntFieldUpdateOperationsInput | number
+  creditHours?: Prisma.FloatFieldUpdateOperationsInput | number
+  slotPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tutorSubject?: Prisma.TutorSubjectUpdateManyWithoutSubjectNestedInput
+  bookings?: Prisma.BookingUpdateManyWithoutSubjectNestedInput
 }
 
 export type SubjectUncheckedUpdateWithoutCategoryInput = {
-  sub_id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  credit_hours?: Prisma.FloatFieldUpdateOperationsInput | number
-  slot_price?: Prisma.IntFieldUpdateOperationsInput | number
+  creditHours?: Prisma.FloatFieldUpdateOperationsInput | number
+  slotPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tutorSubject?: Prisma.TutorSubjectUncheckedUpdateManyWithoutSubjectNestedInput
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutSubjectNestedInput
 }
 
 export type SubjectUncheckedUpdateManyWithoutCategoryInput = {
-  sub_id?: Prisma.StringFieldUpdateOperationsInput | string
+  id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  credit_hours?: Prisma.FloatFieldUpdateOperationsInput | number
-  slot_price?: Prisma.IntFieldUpdateOperationsInput | number
+  creditHours?: Prisma.FloatFieldUpdateOperationsInput | number
+  slotPrice?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
+/**
+ * Count Type SubjectCountOutputType
+ */
+
+export type SubjectCountOutputType = {
+  tutorSubject: number
+  bookings: number
+}
+
+export type SubjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  tutorSubject?: boolean | SubjectCountOutputTypeCountTutorSubjectArgs
+  bookings?: boolean | SubjectCountOutputTypeCountBookingsArgs
+}
+
+/**
+ * SubjectCountOutputType without action
+ */
+export type SubjectCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SubjectCountOutputType
+   */
+  select?: Prisma.SubjectCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * SubjectCountOutputType without action
+ */
+export type SubjectCountOutputTypeCountTutorSubjectArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TutorSubjectWhereInput
+}
+
+/**
+ * SubjectCountOutputType without action
+ */
+export type SubjectCountOutputTypeCountBookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BookingWhereInput
+}
+
 
 export type SubjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  sub_id?: boolean
+  id?: boolean
   name?: boolean
-  credit_hours?: boolean
+  creditHours?: boolean
   categoryId?: boolean
-  slot_price?: boolean
+  slotPrice?: boolean
+  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
+  tutorSubject?: boolean | Prisma.Subject$tutorSubjectArgs<ExtArgs>
+  bookings?: boolean | Prisma.Subject$bookingsArgs<ExtArgs>
+  _count?: boolean | Prisma.SubjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["subject"]>
 
 export type SubjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  sub_id?: boolean
+  id?: boolean
   name?: boolean
-  credit_hours?: boolean
+  creditHours?: boolean
   categoryId?: boolean
-  slot_price?: boolean
+  slotPrice?: boolean
+  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["subject"]>
 
 export type SubjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
-  sub_id?: boolean
+  id?: boolean
   name?: boolean
-  credit_hours?: boolean
+  creditHours?: boolean
   categoryId?: boolean
-  slot_price?: boolean
+  slotPrice?: boolean
+  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["subject"]>
 
 export type SubjectSelectScalar = {
-  sub_id?: boolean
+  id?: boolean
   name?: boolean
-  credit_hours?: boolean
+  creditHours?: boolean
   categoryId?: boolean
-  slot_price?: boolean
+  slotPrice?: boolean
+  isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type SubjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"sub_id" | "name" | "credit_hours" | "categoryId" | "slot_price" | "createdAt" | "updatedAt", ExtArgs["result"]["subject"]>
+export type SubjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "creditHours" | "categoryId" | "slotPrice" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["subject"]>
 export type SubjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
+  tutorSubject?: boolean | Prisma.Subject$tutorSubjectArgs<ExtArgs>
+  bookings?: boolean | Prisma.Subject$bookingsArgs<ExtArgs>
+  _count?: boolean | Prisma.SubjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SubjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.CategoryDefaultArgs<ExtArgs>
@@ -614,13 +866,16 @@ export type $SubjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Subject"
   objects: {
     category: Prisma.$CategoryPayload<ExtArgs>
+    tutorSubject: Prisma.$TutorSubjectPayload<ExtArgs>[]
+    bookings: Prisma.$BookingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
-    sub_id: string
+    id: string
     name: string
-    credit_hours: number
+    creditHours: number
     categoryId: string
-    slot_price: number
+    slotPrice: number
+    isActive: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["subject"]>
@@ -706,8 +961,8 @@ export interface SubjectDelegate<ExtArgs extends runtime.Types.Extensions.Intern
    * // Get first 10 Subjects
    * const subjects = await prisma.subject.findMany({ take: 10 })
    * 
-   * // Only select the `sub_id`
-   * const subjectWithSub_idOnly = await prisma.subject.findMany({ select: { sub_id: true } })
+   * // Only select the `id`
+   * const subjectWithIdOnly = await prisma.subject.findMany({ select: { id: true } })
    * 
    */
   findMany<T extends SubjectFindManyArgs>(args?: Prisma.SelectSubset<T, SubjectFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -751,9 +1006,9 @@ export interface SubjectDelegate<ExtArgs extends runtime.Types.Extensions.Intern
    *   ]
    * })
    * 
-   * // Create many Subjects and only return the `sub_id`
-   * const subjectWithSub_idOnly = await prisma.subject.createManyAndReturn({
-   *   select: { sub_id: true },
+   * // Create many Subjects and only return the `id`
+   * const subjectWithIdOnly = await prisma.subject.createManyAndReturn({
+   *   select: { id: true },
    *   data: [
    *     // ... provide data here
    *   ]
@@ -842,9 +1097,9 @@ export interface SubjectDelegate<ExtArgs extends runtime.Types.Extensions.Intern
    *   ]
    * })
    * 
-   * // Update zero or more Subjects and only return the `sub_id`
-   * const subjectWithSub_idOnly = await prisma.subject.updateManyAndReturn({
-   *   select: { sub_id: true },
+   * // Update zero or more Subjects and only return the `id`
+   * const subjectWithIdOnly = await prisma.subject.updateManyAndReturn({
+   *   select: { id: true },
    *   where: {
    *     // ... provide filter here
    *   },
@@ -1018,6 +1273,8 @@ readonly fields: SubjectFieldRefs;
 export interface Prisma__SubjectClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   category<T extends Prisma.CategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__CategoryClient<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  tutorSubject<T extends Prisma.Subject$tutorSubjectArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Subject$tutorSubjectArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TutorSubjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  bookings<T extends Prisma.Subject$bookingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Subject$bookingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1047,11 +1304,12 @@ export interface Prisma__SubjectClient<T, Null = never, ExtArgs extends runtime.
  * Fields of the Subject model
  */
 export interface SubjectFieldRefs {
-  readonly sub_id: Prisma.FieldRef<"Subject", 'String'>
+  readonly id: Prisma.FieldRef<"Subject", 'String'>
   readonly name: Prisma.FieldRef<"Subject", 'String'>
-  readonly credit_hours: Prisma.FieldRef<"Subject", 'Float'>
+  readonly creditHours: Prisma.FieldRef<"Subject", 'Float'>
   readonly categoryId: Prisma.FieldRef<"Subject", 'String'>
-  readonly slot_price: Prisma.FieldRef<"Subject", 'Int'>
+  readonly slotPrice: Prisma.FieldRef<"Subject", 'Int'>
+  readonly isActive: Prisma.FieldRef<"Subject", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Subject", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Subject", 'DateTime'>
 }
@@ -1447,6 +1705,54 @@ export type SubjectDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Subjects to delete.
    */
   limit?: number
+}
+
+/**
+ * Subject.tutorSubject
+ */
+export type Subject$tutorSubjectArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TutorSubject
+   */
+  select?: Prisma.TutorSubjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TutorSubject
+   */
+  omit?: Prisma.TutorSubjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TutorSubjectInclude<ExtArgs> | null
+  where?: Prisma.TutorSubjectWhereInput
+  orderBy?: Prisma.TutorSubjectOrderByWithRelationInput | Prisma.TutorSubjectOrderByWithRelationInput[]
+  cursor?: Prisma.TutorSubjectWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TutorSubjectScalarFieldEnum | Prisma.TutorSubjectScalarFieldEnum[]
+}
+
+/**
+ * Subject.bookings
+ */
+export type Subject$bookingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Booking
+   */
+  select?: Prisma.BookingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Booking
+   */
+  omit?: Prisma.BookingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BookingInclude<ExtArgs> | null
+  where?: Prisma.BookingWhereInput
+  orderBy?: Prisma.BookingOrderByWithRelationInput | Prisma.BookingOrderByWithRelationInput[]
+  cursor?: Prisma.BookingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BookingScalarFieldEnum | Prisma.BookingScalarFieldEnum[]
 }
 
 /**
