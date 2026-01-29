@@ -95,11 +95,6 @@ export type Subject = Prisma.SubjectModel
  */
 export type TutorProfile = Prisma.TutorProfileModel
 /**
- * Model Contact
- * 
- */
-export type Contact = Prisma.ContactModel
-/**
  * Model TutorSubject
  * 
  */

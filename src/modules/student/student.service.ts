@@ -1,13 +1,8 @@
 import { uuid } from "better-auth";
 import { generateId } from "../../helpers/idGenerator";
 import { prisma } from "../../lib/prisma";
+import { StudentRegistration } from "../../types";
 
-interface StudentRegistration{
-    firstName?: string;
-    lastName?: string;
-    userId: string;
-    contactId: string;
-}
 
 const createStudent = async(payload: StudentRegistration)=>{
     const sid = await generateId({entityType: "student", prefix: "S"});
@@ -16,7 +11,7 @@ const createStudent = async(payload: StudentRegistration)=>{
         const student = await tx.student.create({data});
         await tx.user.update({
             where: {
-                id: student.id
+                id: student.userId
             },
 
             data: {

@@ -16,6 +16,7 @@ model Student {
     address   String?
     email     String?
     zip       String?
+    completedSessions Int @default(0)
     bookings  Booking[]
     reviews   Review[]
     createdAt DateTime      @default(now())

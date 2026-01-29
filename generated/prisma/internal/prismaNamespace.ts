@@ -395,7 +395,6 @@ export const ModelName = {
   Student: 'Student',
   Subject: 'Subject',
   TutorProfile: 'TutorProfile',
-  Contact: 'Contact',
   TutorSubject: 'TutorSubject'
 } as const
 
@@ -412,7 +411,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "booking" | "category" | "review" | "slot" | "student" | "subject" | "tutorProfile" | "contact" | "tutorSubject"
+    modelProps: "user" | "session" | "account" | "verification" | "booking" | "category" | "review" | "slot" | "student" | "subject" | "tutorProfile" | "tutorSubject"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1230,80 +1229,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Contact: {
-      payload: Prisma.$ContactPayload<ExtArgs>
-      fields: Prisma.ContactFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ContactFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ContactFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactPayload>
-        }
-        findFirst: {
-          args: Prisma.ContactFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ContactFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactPayload>
-        }
-        findMany: {
-          args: Prisma.ContactFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactPayload>[]
-        }
-        create: {
-          args: Prisma.ContactCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactPayload>
-        }
-        createMany: {
-          args: Prisma.ContactCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ContactCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactPayload>[]
-        }
-        delete: {
-          args: Prisma.ContactDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactPayload>
-        }
-        update: {
-          args: Prisma.ContactUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactPayload>
-        }
-        deleteMany: {
-          args: Prisma.ContactDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ContactUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ContactUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactPayload>[]
-        }
-        upsert: {
-          args: Prisma.ContactUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ContactPayload>
-        }
-        aggregate: {
-          args: Prisma.ContactAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateContact>
-        }
-        groupBy: {
-          args: Prisma.ContactGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ContactGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ContactCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ContactCountAggregateOutputType> | number
-        }
-      }
-    }
     TutorSubject: {
       payload: Prisma.$TutorSubjectPayload<ExtArgs>
       fields: Prisma.TutorSubjectFieldRefs
@@ -1537,6 +1462,11 @@ export const StudentScalarFieldEnum = {
   lastName: 'lastName',
   userId: 'userId',
   status: 'status',
+  phone: 'phone',
+  address: 'address',
+  email: 'email',
+  zip: 'zip',
+  completedSessions: 'completedSessions',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1562,27 +1492,26 @@ export const TutorProfileScalarFieldEnum = {
   id: 'id',
   tid: 'tid',
   userId: 'userId',
+  firstName: 'firstName',
+  lastName: 'lastName',
   bio: 'bio',
+  completedSessions: 'completedSessions',
+  experienceYears: 'experienceYears',
+  cv: 'cv',
+  expertiseAreas: 'expertiseAreas',
+  categoryId: 'categoryId',
   avgRating: 'avgRating',
   totalReviews: 'totalReviews',
-  contactId: 'contactId',
   totalEarned: 'totalEarned',
+  phone: 'phone',
+  address: 'address',
+  email: 'email',
+  zip: 'zip',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TutorProfileScalarFieldEnum = (typeof TutorProfileScalarFieldEnum)[keyof typeof TutorProfileScalarFieldEnum]
-
-
-export const ContactScalarFieldEnum = {
-  id: 'id',
-  contact_name: 'contact_name',
-  contact: 'contact',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ContactScalarFieldEnum = (typeof ContactScalarFieldEnum)[keyof typeof ContactScalarFieldEnum]
 
 
 export const TutorSubjectScalarFieldEnum = {
@@ -1808,7 +1737,6 @@ export type GlobalOmitConfig = {
   student?: Prisma.StudentOmit
   subject?: Prisma.SubjectOmit
   tutorProfile?: Prisma.TutorProfileOmit
-  contact?: Prisma.ContactOmit
   tutorSubject?: Prisma.TutorSubjectOmit
 }
 

@@ -62,7 +62,6 @@ export const ModelName = {
   Student: 'Student',
   Subject: 'Subject',
   TutorProfile: 'TutorProfile',
-  Contact: 'Contact',
   TutorSubject: 'TutorSubject'
 } as const
 
@@ -202,6 +201,11 @@ export const StudentScalarFieldEnum = {
   lastName: 'lastName',
   userId: 'userId',
   status: 'status',
+  phone: 'phone',
+  address: 'address',
+  email: 'email',
+  zip: 'zip',
+  completedSessions: 'completedSessions',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -227,27 +231,26 @@ export const TutorProfileScalarFieldEnum = {
   id: 'id',
   tid: 'tid',
   userId: 'userId',
+  firstName: 'firstName',
+  lastName: 'lastName',
   bio: 'bio',
+  completedSessions: 'completedSessions',
+  experienceYears: 'experienceYears',
+  cv: 'cv',
+  expertiseAreas: 'expertiseAreas',
+  categoryId: 'categoryId',
   avgRating: 'avgRating',
   totalReviews: 'totalReviews',
-  contactId: 'contactId',
   totalEarned: 'totalEarned',
+  phone: 'phone',
+  address: 'address',
+  email: 'email',
+  zip: 'zip',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TutorProfileScalarFieldEnum = (typeof TutorProfileScalarFieldEnum)[keyof typeof TutorProfileScalarFieldEnum]
-
-
-export const ContactScalarFieldEnum = {
-  id: 'id',
-  contact_name: 'contact_name',
-  contact: 'contact',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ContactScalarFieldEnum = (typeof ContactScalarFieldEnum)[keyof typeof ContactScalarFieldEnum]
 
 
 export const TutorSubjectScalarFieldEnum = {

@@ -4,6 +4,7 @@ model Category {
   slug String @unique
   slotPrice Int
   subject Subject[]
+  tutorProfile TutorProfile[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

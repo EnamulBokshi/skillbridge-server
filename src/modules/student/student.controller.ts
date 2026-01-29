@@ -3,24 +3,19 @@ import { errorResponse } from "../../helpers/errorResponse";
 import { studentService } from "./student.service";
 import { successResponse } from "../../helpers/successResponse";
 import { UserRole } from "../../constants/userRole";
+import { StudentRegistration } from "../../types";
 
 const createStudent = async(req: Request, res:Response) => {
     try {
         // const {firstName, lastName, } = req.body
         // const data = {firstName, lastName}
-        const userId = req.user?.id;
-        const userRole= req.user?.role;
-        if(userRole === UserRole.ADMIN && userId !== req.body.id){
-            errorResponse(res, 401, null, 'Forbidden! you are not authorized for such an operation');
-            return;
-        }
-
-        const user = await studentService.createStudent(req.body as any)
+      const studentData: StudentRegistration = {...req.body, userId: req.user!.id};
+        const user = await studentService.createStudent(studentData); 
         if(user){
         successResponse(res, 201, user, "Student profile created successfully!!" );
             return;
         }   
-                
+
         new Error('Student profile creation failed!!')
     } catch (error:any) {
         console.error(error);
