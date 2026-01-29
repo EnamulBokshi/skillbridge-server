@@ -11,16 +11,16 @@ const app:Application = express();
 
 app.use(express.json());
 app.use(cors({
-    origin: process.env.APP_URL || "http://localhost:3000",
+    origin: ["http://localhost:3000", "http://localhost:3001"],
     credentials: true
 }));
 
-app.all('/api/auth/{*any}', toNodeHandler(auth));
+app.all('/api/auth/*splat', toNodeHandler(auth));
 
 app.get("/", (req: Request, res: Response) => {
     res.status(200).json({message: "Welcome to SkillBride Server"});
 })
 
-app.use("/api/v1/auth/registration/student", studentRouter)
+app.use("/api/auth/registration/student", studentRouter)
 
 export default app;

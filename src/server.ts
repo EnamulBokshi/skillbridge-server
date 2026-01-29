@@ -1,5 +1,6 @@
 // server 
 
+import "./config/config";
 import app from "./app";
 import { prisma } from "./lib/prisma";
 

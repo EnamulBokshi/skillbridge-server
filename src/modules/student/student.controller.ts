@@ -20,8 +20,7 @@ const createStudent = async(req: Request, res:Response) => {
         successResponse(res, 201, user, "Student profile created successfully!!" );
             return;
         }   
-        res.status(400).json({success: true})
-        
+                
         new Error('Student profile creation failed!!')
     } catch (error:any) {
         console.error(error);
