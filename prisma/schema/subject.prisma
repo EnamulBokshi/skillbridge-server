@@ -1,11 +1,11 @@
 model Subject {
     id String @id @default(uuid())
     name String @db.Text
-    creditHours Float
+    creditHours Int
     categoryId String
     category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-    slotPrice Int
-
+    slug String @unique
+    description String @db.Text
     tutorSubject TutorSubject[]
     bookings Booking[]
     isActive Boolean

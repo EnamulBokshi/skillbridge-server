@@ -49,3 +49,29 @@ export interface TutorRegistration{
     cv?: string;
     expertiseAreas: string[];
 }
+
+export interface Category{
+    id?: string;
+    name: string;
+    slug: string;
+    slotPrice: number;
+}
+
+// export interface Subject{
+//     id?: string;
+//     name: string;
+//     slug: string;
+//     categoryId: string;
+// }
+
+export interface Subject {
+    id ?:string;
+    name: string;
+    creditHours: number;
+    categoryId: string;
+    slug: string;
+    description: string;
+    isActive: boolean;
+}
+    
+  
