@@ -5,6 +5,9 @@ import {auth} from './lib/auth';
 import cors from "cors"
 import { toNodeHandler } from "better-auth/node";
 import studentRouter from "./modules/student/student.router";
+import logger from "./middleware/logger.middleware";
+import tutorRouter from "./modules/tutor/tutor.router";
+import notFoundMiddleware from "./middleware/404Route.middleware";
 
 
 const app:Application = express();
@@ -15,12 +18,17 @@ app.use(cors({
     credentials: true
 }));
 
-app.all('/api/auth/*splat', toNodeHandler(auth));
+app.use(logger);
 
+app.all('/api/auth/*splat', toNodeHandler(auth));
 app.get("/", (req: Request, res: Response) => {
-    res.status(200).json({message: "Welcome to SkillBride Server"});
+    res.status(200).json({message: "Welcome to SkillBridge Server"});
 })
 
-app.use("/api/auth/registration/student", studentRouter)
+app.use("/api/v1/students", studentRouter);
+app.use("/api/v1/tutors", tutorRouter);
 
+
+
+app.use(notFoundMiddleware);
 export default app;
