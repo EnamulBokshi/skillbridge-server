@@ -7,13 +7,15 @@ const createTutor = async(payload: TutorRegistration) => {
     const data = {...payload, tid}
     return await prisma.$transaction(async(tx)=>{
         const tutor = await tx.tutorProfile.create({data});
+
         await tx.user.update({
             where: {
                 id: tutor.userId
             },
 
             data: {
-                isAssociate: true
+                isAssociate: true,
+                role: "TUTOR"
             },
             
         });

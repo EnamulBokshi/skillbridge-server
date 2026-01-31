@@ -3,6 +3,13 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import nodemailer from "nodemailer";
 
+const trustedOrigins = [
+  process.env.APP_URL,
+  process.env.BETTER_AUTH_URL,
+  "http://localhost:3000",
+  "http://localhost:5000",
+].filter((origin): origin is string => Boolean(origin));
+
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
@@ -17,7 +24,7 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  trustedOrigins: ["http://localhost:3000"],
+  trustedOrigins,
   user: {
     additionalFields: {
       role: {

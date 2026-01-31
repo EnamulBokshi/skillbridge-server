@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { errorResponse } from "../../helpers/errorResponse";
 import { categoryService } from "./category.service";
+import { successResponse } from "../../helpers/successResponse";
 
 const createCategory = async(req: Request, res:Response,next:NextFunction) => {
     try {
@@ -66,9 +67,28 @@ const updateCategory = async(req: Request, res:Response,next:NextFunction) => {
     }
 }
 
+const getCategoryBySlug = async (req: Request, res: Response, next:NextFunction) => {
+    try {
+        const { slug } = req.params;
+        const category = await categoryService.getCategoryBySlug(slug as string);
+        if(!category){
+            console.log('Category fetch failed');
+             errorResponse(res, 500, null, 'Category fetch failed! ') 
+            return;
+
+        }
+        successResponse(res, 200, category, 'Category Fetched Successfully!!')
+    }
+    catch(error){
+        console.error('Category fetch failed:', error);
+        errorResponse(res, 500, error, 'Category fetch failed! ') 
+    }
+}
+
 export const categoryController = {
     createCategory,
     getAllCategories,
     deleteCategory,
-    updateCategory
+    updateCategory,
+    getCategoryBySlug
 }

@@ -2,7 +2,7 @@ model Subject {
     id String @id @default(uuid())
     name String @db.Text
     creditHours Int
-    categoryId String
+    categoryId String 
     category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
     slug String @unique
     description String @db.Text

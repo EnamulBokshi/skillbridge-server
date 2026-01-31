@@ -10,7 +10,7 @@ model Booking{
     tutorProfile TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
     studentId String
     student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-    slotId String
+    slotId String @unique
     slot Slot @relation(fields: [slotId], references: [id], onDelete: Cascade) 
 
     subjectId String

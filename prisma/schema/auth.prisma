@@ -11,8 +11,8 @@ model User {
   status        String?   @default("ACTIVE")
   sessions      Session[]
   accounts      Account[]
-  student       Student[]
-  tutorProfile  TutorProfile[]
+  student       Student?
+  tutorProfile  TutorProfile?
 
 
   isAssociate Boolean? @default(false)

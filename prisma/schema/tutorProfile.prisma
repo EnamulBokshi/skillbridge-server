@@ -1,7 +1,7 @@
 model TutorProfile{
     id String @id @default(uuid())
     tid String @unique 
-    userId String
+    userId String @unique
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     firstName String
     lastName String
