@@ -9,6 +9,7 @@ studentRouter.post("/", authMiddleware(UserRole.ADMIN, UserRole.USER),privateRou
 studentRouter.get("/:studentId", authMiddleware(UserRole.ADMIN, UserRole.STUDENT, UserRole.TUTOR, UserRole.USER), studentController.getStudentByIdFullProfile);
 studentRouter.patch("/:studentId", authMiddleware(UserRole.ADMIN, UserRole.STUDENT), studentController.updateStudent);
 studentRouter.delete("/:studentId", authMiddleware(UserRole.ADMIN), studentController.deleteStudent);
+studentRouter.get("/:studentId/stats", authMiddleware(UserRole.ADMIN, UserRole.STUDENT), studentController.studentStats);
 
 
 export default studentRouter;

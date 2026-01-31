@@ -80,10 +80,78 @@ const deleteStudent = async (id: string) => {
         where: {id},
     })
 }
+const studentStats = async (studentId: string) => {
+    // Implementation for fetching student statistics
+    const result = await prisma.$transaction(async (tx)=>{
+
+        const totalBookings = await tx.booking.count({
+            where: { studentId }
+        });
+
+        const latestBooking = await tx.booking.findFirst({
+            where: { studentId },
+            orderBy: { createdAt: 'desc' },
+            include: {
+                tutorProfile: {
+                    select: {
+                        firstName:true,
+                        lastName: true,
+                        tid: true,
+                    }
+                },
+                slot: {
+                    select: {
+                        startTime: true,
+                        endTime: true,
+                        date: true,
+                        id: true,
+                    }
+                }
+            }
+        });
+
+        const totalTutors = await tx.booking.groupBy({
+            by: ['tutorId'],
+            where: { studentId },
+            _count: {
+                tutorId: true
+            }
+        })
+        const favoriteTutorId = totalTutors.sort((a, b) => b._count.tutorId - a._count.tutorId)[0];
+        const favoriteTutor = favoriteTutorId ? await tx.tutorProfile.findUnique({
+            where: { id: favoriteTutorId.tutorId },
+            select: {
+                tid: true,
+                firstName: true,
+                lastName: true,
+                avgRating: true,
+            }
+        }) : null;
+
+
+        // const favoriteSubject = await tx.booking.groupBy({
+        //     by: ['']
+        // })
+
+        const totalReviews = await tx.review.count({
+            where: { studentId }
+        });
+        const data = {
+            totalBookings,
+            latestBooking,
+            favoriteTutor,
+            totalReviews
+        }
+        return data;
+        
+    })
+    return result;
+}
 export const studentService = {
     createStudent,
     getStudentByStudentId,
     getStudentById,
     updateStudent,
-    deleteStudent
+    deleteStudent,
+    studentStats
 }

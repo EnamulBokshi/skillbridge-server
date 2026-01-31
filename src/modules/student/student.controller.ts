@@ -80,9 +80,29 @@ const deleteStudent = async (req: Request, res: Response) => {
     }
 }
 
+const studentStats = async (req: Request, res: Response) => {
+    // Implementation for fetching student statistics
+    try {
+        const {studentId} = req.params;
+        if(!studentId){
+            return errorResponse(res, 400, null, "Student ID is required");
+        }
+        const stats = await studentService.studentStats(studentId as string);
+        if(!stats){
+            return errorResponse(res, 404, null, "Student not found");
+        }
+        successResponse(res, 200, stats, "Student statistics fetched successfully!!");
+
+    } catch (error:any) {
+        console.error(error);
+        errorResponse(res, 500, error, error.message|| "Couldn't fetch student statistics!!")
+    }
+}
+
 export const studentController = {
     createStudent,
     getStudentByIdFullProfile,
     updateStudent,
-    deleteStudent
+    deleteStudent,
+    studentStats
 }
