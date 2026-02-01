@@ -5,6 +5,10 @@ import { successResponse } from "../../helpers/successResponse";
 
 const createCategory = async(req: Request, res:Response,next:NextFunction) => {
     try {
+        const categoryExists = await categoryService.getCategoryBySlug(req.body.slug);
+        if(categoryExists){
+            return errorResponse(res, 400, null , "Category with this slug already exists");
+        }
         const category = await categoryService.createCategory(req.body);
         if(category){
             return res.status(201).json({success:true, data: category, error:null, message:"Category created successfully"});

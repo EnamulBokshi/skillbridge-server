@@ -10,6 +10,7 @@ import tutorRouter from "./modules/tutor/tutor.router";
 import notFoundMiddleware from "./middleware/404Route.middleware";
 import { categoryRouter } from "./modules/category/category.router";
 import subjectRouter from "./modules/subject/subject.router";
+import slotRouter from "./modules/slot/slot.router";
 
 
 const app:Application = express();
@@ -31,7 +32,7 @@ app.use("/api/v1/students", studentRouter);
 app.use("/api/v1/tutors", tutorRouter);
 app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/subjects", subjectRouter)
-
+app.use("/api/v1/slots", slotRouter);
 
 app.use(notFoundMiddleware);
 

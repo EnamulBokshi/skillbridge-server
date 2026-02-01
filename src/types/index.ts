@@ -20,7 +20,6 @@ export interface Bookings{
     tutorId: string;
     studentId: string;
     slotId: string;
-    subjectId: string;
 
 }
 
@@ -55,7 +54,7 @@ export interface Category{
     name: string;
     slug: string;
     description: string;
-    
+
 }
 
 // export interface Subject{
@@ -76,8 +75,45 @@ export interface Subject {
 }
     
 
-export interface ISlot{
- 
+export interface ISlot {
+    id: string;
+    tutorId: string;
+    date: Date;
+    startTime: Date;
+    endTime: Date;
+    subjectId: string;
+    slotPrice: number;
+    isBooked: boolean;
+    isFeatured: boolean;
+    isFree: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface ICreateSlotPayload {
+    tutorId: string;
+    date: string; // ISO datetime string
+    startTime: string; // ISO datetime string
+    endTime: string; // ISO datetime string
+    subjectId: string;
+    slotPrice: number;
+    isBooked: boolean;
+    isFeatured?: boolean;
+    isFree?: boolean;
+}
+
+export interface IUpdateSlotPayload {
+    date?: string;
+    startTime?: string;
+    endTime?: string;
+    slotPrice?: number;
+    isBooked?: boolean;
+    isFeatured?: boolean;
+    isFree?: boolean;
+}
+
+export interface ISlotResponse {
+    id: string;
     tutorId: string;
     date: string;
     startTime: string;
@@ -85,5 +121,9 @@ export interface ISlot{
     subjectId: string;
     slotPrice: number;
     isBooked: boolean;
+    isFeatured: boolean;
+    isFree: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
   

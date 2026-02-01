@@ -11,7 +11,8 @@ model Slot{
     slotPrice Float
     subjectId String 
     subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-
+    isFeatured Boolean @default(false)
+    isFree Boolean @default(false)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
