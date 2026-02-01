@@ -16,7 +16,8 @@ async function seedAdmin(){
             name: ADMIN_NAME,
             email: ADMIN_EMAIL,
             role: UserRole.ADMIN,
-            password: ADMIN_PASSWORD
+            password: ADMIN_PASSWORD,
+            image: process.env.DEFAULT_AVTAR_URL || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
         }
         // find if the admin exists already or not
     
@@ -31,7 +32,7 @@ async function seedAdmin(){
             return 0;
         }
     
-        const newAdmin = await fetch(`http://localhost:5000/api/auth/sign-up/email`, {
+        const newAdminResponse = await fetch(`http://localhost:5000/api/auth/sign-up/email`, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -39,8 +40,8 @@ async function seedAdmin(){
             },
             body: JSON.stringify(adminData)
         })
-        console.log({newAdmin});
-        if(newAdmin.ok){
+        const newAdmin = await newAdminResponse.json();
+        if(newAdmin){
             console.log("New admin created!");
             console.log("Updating the user email verification status:")
             const updateEmail = await prisma.user.update({
@@ -48,12 +49,13 @@ async function seedAdmin(){
                     email: adminData.email as string
                 },
                 data: {
-                    emailVerified:true
+                    emailVerified:true,
+                    isAssociate: true
                 }
             })
             console.log(`Email verified status updated successfully`)
 
-        console.log(`******Amin seeded successfully*******`);
+        console.log(`******Admin seeded successfully*******`);
         console.log(`exiting------\-`)
         return 1;
         }

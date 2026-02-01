@@ -9,6 +9,7 @@ import logger from "./middleware/logger.middleware";
 import tutorRouter from "./modules/tutor/tutor.router";
 import notFoundMiddleware from "./middleware/404Route.middleware";
 import { categoryRouter } from "./modules/category/category.router";
+import subjectRouter from "./modules/subject/subject.router";
 
 
 const app:Application = express();
@@ -29,7 +30,7 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/v1/students", studentRouter);
 app.use("/api/v1/tutors", tutorRouter);
 app.use("/api/v1/categories", categoryRouter);
-
+app.use("/api/v1/subjects", subjectRouter)
 
 
 app.use(notFoundMiddleware);

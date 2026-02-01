@@ -147,7 +147,6 @@ export const BookingScalarFieldEnum = {
   tutorId: 'tutorId',
   studentId: 'studentId',
   slotId: 'slotId',
-  subjectId: 'subjectId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -158,8 +157,8 @@ export type BookingScalarFieldEnum = (typeof BookingScalarFieldEnum)[keyof typeo
 export const CategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  description: 'description',
   slug: 'slug',
-  slotPrice: 'slotPrice',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -187,6 +186,8 @@ export const SlotScalarFieldEnum = {
   endTime: 'endTime',
   isBooked: 'isBooked',
   tutorId: 'tutorId',
+  slotPrice: 'slotPrice',
+  subjectId: 'subjectId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -201,6 +202,7 @@ export const StudentScalarFieldEnum = {
   lastName: 'lastName',
   userId: 'userId',
   status: 'status',
+  profilePicture: 'profilePicture',
   phone: 'phone',
   address: 'address',
   email: 'email',
@@ -234,6 +236,8 @@ export const TutorProfileScalarFieldEnum = {
   userId: 'userId',
   firstName: 'firstName',
   lastName: 'lastName',
+  isFeatured: 'isFeatured',
+  profilePicture: 'profilePicture',
   bio: 'bio',
   completedSessions: 'completedSessions',
   experienceYears: 'experienceYears',

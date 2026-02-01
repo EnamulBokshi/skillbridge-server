@@ -2,9 +2,14 @@ import { NextFunction, Request, Response } from "express";
 import { subjectService } from "./subject.service";
 import { errorResponse } from "../../helpers/errorResponse";
 
-const createSubject = async(req: Request, res:Response,next:NextFunction) => {
+const createSubject = async(req: Request, res:Response) => {
     try {
-        const subject = await subjectService.createSubject(req.body);
+        const data = req.body;
+        if(!data.name || !data.categoryId || !data.slug || !data.description || data.creditHours===undefined ) {
+            return errorResponse(res, 400, null , "Missing required subject fields");
+        }
+        const subject = await subjectService.createSubject({...data, isActive: true});
+        
         if(subject){
             return res.status(201).json({success:true, data: subject, error:null, message:"Subject created successfully"});
         }
@@ -17,9 +22,11 @@ const createSubject = async(req: Request, res:Response,next:NextFunction) => {
     }
 }
 
-const getAllSubjects = async(req: Request, res:Response,next:NextFunction) => {
+const getAllSubjects = async(req: Request, res:Response) => {
     try {
         const subjects =  await subjectService.getAllSubjects();
+        console.log("Fetched subjects:", subjects);
+
         return res.status(200).json({success:true, data: subjects, error:null, message:"Subjects fetched successfully"});
     } catch (error) {
         console.error("Error fetching subjects:", error);
@@ -28,7 +35,7 @@ const getAllSubjects = async(req: Request, res:Response,next:NextFunction) => {
     }
 }
 
-const getSubjectsByCategory = async(req: Request, res:Response,next:NextFunction) => {
+const getSubjectsByCategory = async(req: Request, res:Response) => {
     try {
         const { categoryId } = req.params;
         if(!categoryId){

@@ -1,8 +1,8 @@
 model Category {
   id String @id @default(uuid())
   name String
+  description String
   slug String @unique
-  slotPrice Int
   subject Subject[]
   tutorProfile TutorProfile[]
   createdAt DateTime @default(now())

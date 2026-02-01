@@ -43,6 +43,9 @@ export const auth = betterAuth({
         required: false
       }
     },
+    image: {
+      defaultValue: process.env.DEFAULT_AVATAR_URL || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+    }
   },
   emailAndPassword: {
     enabled: true,

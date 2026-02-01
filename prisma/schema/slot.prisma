@@ -8,6 +8,9 @@ model Slot{
     bookings Booking[]
     tutorId String
     tutorProfile TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade) 
+    slotPrice Float
+    subjectId String 
+    subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

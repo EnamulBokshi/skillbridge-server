@@ -13,13 +13,10 @@ model Booking{
     slotId String @unique
     slot Slot @relation(fields: [slotId], references: [id], onDelete: Cascade) 
 
-    subjectId String
-    subject Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
-
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     
-    @@index([tutorId, studentId, slotId, subjectId])
+    @@index([id, tutorId, studentId, slotId])
     @@map("booking")
 
 }

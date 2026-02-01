@@ -5,13 +5,14 @@ model TutorProfile{
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
     firstName String
     lastName String
-
+    isFeatured Boolean @default(false)
+    profilePicture String?
     bio String @db.Text
     completedSessions Int @default(0)
     experienceYears Int @default(0)
     cv String?
     expertiseAreas String[]
-    categoryId String
+    categoryId String 
     category Category @relation(fields: [categoryId], references: [id], onUpdate: Cascade)
     avgRating Float @default(0.0)
     totalReviews Int @default(0)

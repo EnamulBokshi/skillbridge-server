@@ -54,7 +54,8 @@ export interface Category{
     id?: string;
     name: string;
     slug: string;
-    slotPrice: number;
+    description: string;
+    
 }
 
 // export interface Subject{
@@ -74,4 +75,15 @@ export interface Subject {
     isActive: boolean;
 }
     
+
+export interface ISlot{
+ 
+    tutorId: string;
+    date: string;
+    startTime: string;
+    endTime: string;
+    subjectId: string;
+    slotPrice: number;
+    isBooked: boolean;
+}
   
