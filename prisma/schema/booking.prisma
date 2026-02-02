@@ -1,22 +1,22 @@
 enum BookingStatus{
     CONFIRMED
-    CANCELD
+    CANCELLED
     COMPLETED
+    PENDING
+    REJECTED
 }
 
 model Booking{
     id String @id @default(uuid())
-    tutorId String 
-    tutorProfile TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade)
     studentId String
     student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
     slotId String @unique
     slot Slot @relation(fields: [slotId], references: [id], onDelete: Cascade) 
-
+    status BookingStatus @default(PENDING)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     
-    @@index([id, tutorId, studentId, slotId])
+    @@index([id, studentId, slotId])
     @@map("booking")
 
 }

@@ -23,7 +23,6 @@ model TutorProfile{
     zip     String? 
     slot Slot[]
     tutorSubject TutorSubject[]
-    bookings Booking[]
     reviews Review[]
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

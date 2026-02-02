@@ -11,8 +11,10 @@
 
 export const BookingStatus = {
   CONFIRMED: 'CONFIRMED',
-  CANCELD: 'CANCELD',
-  COMPLETED: 'COMPLETED'
+  CANCELLED: 'CANCELLED',
+  COMPLETED: 'COMPLETED',
+  PENDING: 'PENDING',
+  REJECTED: 'REJECTED'
 } as const
 
 export type BookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus]

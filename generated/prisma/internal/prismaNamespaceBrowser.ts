@@ -144,9 +144,9 @@ export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[k
 
 export const BookingScalarFieldEnum = {
   id: 'id',
-  tutorId: 'tutorId',
   studentId: 'studentId',
   slotId: 'slotId',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

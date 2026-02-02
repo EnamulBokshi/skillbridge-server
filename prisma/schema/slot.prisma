@@ -1,11 +1,10 @@
 model Slot{
     id String @id @default(uuid())
-    
     date DateTime
     startTime DateTime
     endTime DateTime
     isBooked Boolean
-    bookings Booking[]
+    bookings Booking?
     tutorId String
     tutorProfile TutorProfile @relation(fields: [tutorId], references: [id], onDelete: Cascade) 
     slotPrice Float

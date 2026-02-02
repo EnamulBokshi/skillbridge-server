@@ -147,3 +147,34 @@ export interface SlotSearchParams extends ParamsType{
     date?: string;
 
 }
+
+export interface BookingSearchParams extends ParamsType{
+    studentId?: string;
+    tutorId?: string;
+    slotId?: string;
+    status?: "PENDING" | "CONFIRMED" | "CANCELLED";
+    startDate? : string;
+    endDate?: string;
+    date?: string;
+}
+
+export interface PaginationMeta{
+    page: number;
+    limit: number;
+    totalRecords: number;
+    totalPages: number;
+}
+
+export interface PaginatedResult<T> {
+    data: T;
+    pagination: PaginationMeta;
+}
+
+export interface CreateBookingPayload{
+    slotId: string;
+    studentId: string;
+}
+
+export interface UpdateBookingPayload{
+    status: "PENDING" | "CONFIRMED" | "CANCELLED";
+}
