@@ -127,3 +127,23 @@ export interface ISlotResponse {
     updatedAt: string;
 }
   
+export interface ParamsType{
+    search?: string;
+    page?: number;
+    limit?: number;
+    skip?: number;
+    sortBy?: string;
+    orderBy?: string;
+}
+
+export interface SlotSearchParams extends ParamsType{
+    
+    isFeatured?: boolean;
+    isFree?: boolean;
+    tutorId? : string;
+    subjectId?: string;
+    startDate? : string;
+    endDate?: string;
+    date?: string;
+
+}

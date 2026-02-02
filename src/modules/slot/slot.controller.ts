@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import { errorResponse } from "../../helpers/errorResponse";
 import { slotService } from "./slot.service";
 import { successResponse } from "../../helpers/successResponse";
-import { ICreateSlotPayload } from "../../types";
+import { ICreateSlotPayload, SlotSearchParams } from "../../types";
+import paginationSortHelper from "../../helpers/paginationHelper";
 
 
 const createSlot = async (req: Request, res: Response) => {
@@ -11,7 +12,17 @@ const createSlot = async (req: Request, res: Response) => {
         if(!slotData.tutorId || !slotData.date || !slotData.startTime || !slotData.endTime || !slotData.subjectId || slotData.slotPrice === undefined ) {
             return errorResponse(res, 400, null, "Missing required slot fields");
         }
-        const newSlot = await slotService.createSlot({...slotData, isBooked: false});
+        
+        // Transform date and time strings to ISO-8601 DateTime
+        const transformedData = {
+            ...slotData,
+            date: new Date(`${slotData.date}T00:00:00Z`).toISOString(),
+            startTime: new Date(`${slotData.date}T${slotData.startTime}:00Z`).toISOString(),
+            endTime: new Date(`${slotData.date}T${slotData.endTime}:00Z`).toISOString(),
+            isBooked: false
+        };
+        
+        const newSlot = await slotService.createSlot(transformedData);
         if(!newSlot) {
             return errorResponse(res, 500, null, "Slot creation failed");
         }
@@ -19,18 +30,19 @@ const createSlot = async (req: Request, res: Response) => {
         successResponse(res, 201, newSlot, "Slot created successfully!!");
     } catch (error: any) {
         console.error(error);
-        errorResponse(res, 500, error, error.message || "Couldn't create slot!!");
+        errorResponse(res, 500, error, "Couldn't create slot!!");
     }
 }
 const getSlots = async (req: Request, res: Response) => {
     try {
-        const filters = req.query;
-        const slots = await slotService.getSlots({
-            tutorId: filters.tutorId as string,
-            date: filters.date as string,
-            subjectId: filters.subjectId as string,
-            isBooked: filters.isBooked ? filters.isBooked === 'true' : undefined
-        });
+        const filters:SlotSearchParams = req.query;
+        
+        const options = paginationSortHelper(filters)
+        const isFree = req.query.isFree;
+        
+        const queryFilters = {...filters, ...options};
+        
+        const slots = await slotService.getSlots(queryFilters);
         
         successResponse(res, 200, slots, "Slots fetched successfully!!");
     } catch (error:any) {

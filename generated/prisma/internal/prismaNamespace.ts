@@ -1449,6 +1449,8 @@ export const SlotScalarFieldEnum = {
   tutorId: 'tutorId',
   slotPrice: 'slotPrice',
   subjectId: 'subjectId',
+  isFeatured: 'isFeatured',
+  isFree: 'isFree',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
