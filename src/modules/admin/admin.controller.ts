@@ -94,11 +94,23 @@ const getAllUsers = async (req: Request, res: Response) => {
     }
 }
 
+const adminDashboardStats = async (req: Request, res: Response) => {
+    try {
+        const stats = await adminService.adminDashboardStats();
+        successResponse(res, 200, stats, "Dashboard stats fetched successfully!!");
+        
+    } catch (error:any) {
+        console.error(error);
+        errorResponse(res, 500, error, error.message || "Couldn't fetch dashboard stats!!");
+    }
+}
+
 export const adminController = {
     getTotalEarnings,
     deleteUser,
     banUser,
     unbanUser,
     getAllBookings,
-    getAllUsers
+    getAllUsers,
+    adminDashboardStats
 }

@@ -15,5 +15,5 @@ adminRouter.get("/bookings", authMiddleware(UserRole.ADMIN), adminController.get
 adminRouter.get("/users", authMiddleware(UserRole.ADMIN), adminController.getAllUsers);
 adminRouter.patch("/sessions/:bookingId/cancel", authMiddleware(UserRole.ADMIN), bookingController.cancelBooking); // Admin can cancel any booking -> so it is in admin router, not booking router
 adminRouter.patch("/sessions/:bookingId/confirm", authMiddleware(UserRole.ADMIN), bookingController.confirmBooking); // Admin can confirm any booking -> so it is in admin router, not booking router
-
+adminRouter.get("/dashboard-stats", authMiddleware(UserRole.ADMIN), adminController.adminDashboardStats);
 export default adminRouter;

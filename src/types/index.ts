@@ -252,3 +252,124 @@ export interface UserFilterParams extends ParamsType{
     role?: "STUDENT" | "TUTOR" | "ADMIN";
     status?: "ACTIVE" | "BANNED" | "INACTIVE";
 }
+
+export interface AdminDashboardStats {
+    users: {
+        total: number;
+        active: number;
+        banned: number;
+        byRole: Array<{
+            role: string | null;
+            _count: {
+                id: number;
+            };
+        }>;
+        recentSignups: number;
+        growthRate: number;
+    };
+    tutors: {
+        total: number;
+        featured: number;
+        topPerformer: {
+            id: string;
+            firstName: string;
+            lastName: string;
+            completedSessions: number;
+            avgRating: number;
+        } | null;
+        topRated: Array<{
+            id: string;
+            firstName: string;
+            lastName: string;
+            avgRating: number;
+            totalReviews: number;
+            completedSessions: number;
+        }>;
+        totalEarnings: number;
+        averageEarnings: number;
+    };
+    students: {
+        total: number;
+        active: number;
+        topBooker: {
+            id: string;
+            firstName: string | null;
+            lastName: string | null;
+            completedSessions: number;
+            _count: {
+                bookings: number;
+            };
+        } | null;
+    };
+    bookings: {
+        total: number;
+        byStatus: Array<{
+            status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "REJECTED";
+            _count: {
+                id: number;
+            };
+        }>;
+        confirmed: number;
+        completed: number;
+        cancelled: number;
+        pending: number;
+        recent: number;
+        growthRate: number;
+    };
+    slots: {
+        total: number;
+        booked: number;
+        available: number;
+        featured: number;
+        free: number;
+        pricing: {
+            average: number;
+            minimum: number;
+            maximum: number;
+            total: number;
+        };
+    };
+    revenue: {
+        total: number;
+        lastThirtyDays: number;
+        averagePerBooking: number;
+    };
+    reviews: {
+        total: number;
+        averageRating: number;
+        ratingDistribution: Array<{
+            rating: number;
+            _count: {
+                id: number;
+            };
+        }>;
+        recent: number;
+    };
+    categories: {
+        total: number;
+        details: Array<{
+            id: string;
+            name: string;
+            _count: {
+                subject: number;
+                tutorProfile: number;
+            };
+        }>;
+    };
+    subjects: {
+        total: number;
+        active: number;
+        mostPopular: Array<{
+            id: string;
+            name: string;
+            creditHours: number;
+            _count: {
+                slots: number;
+                tutorSubject: number;
+            };
+        }>;
+    };
+    sessions: {
+        totalCompleted: number;
+    };
+}
