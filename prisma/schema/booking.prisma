@@ -13,6 +13,7 @@ model Booking{
     slotId String @unique
     slot Slot @relation(fields: [slotId], references: [id], onDelete: Cascade) 
     status BookingStatus @default(PENDING)
+    
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     

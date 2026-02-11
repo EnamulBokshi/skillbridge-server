@@ -10,7 +10,56 @@ import { BookingSearchParams } from "../../types";
 // booking statestics - total bookings, bookings by status, booking trends over time, earnings from bookings, bookings by tutor, popular subjects based on bookings, popular categories based on bookings 
 
 const createBooking = async (data:BookingUncheckedCreateInput) => {
-    return await prisma.booking.create({ data })
+    const result = await prisma.$transaction(async(tx)=> {
+        // create booking with PENDING status
+        const student = await tx.student.findUnique({
+            where: {
+                userId: data.studentId
+            }
+        })
+        if(!student) {
+            throw new Error("Student profile not found");
+        }
+        data.studentId = student.id;
+
+        const slot = await tx.slot.findUnique({
+            where: { id: data.slotId }
+        });
+
+        if(!slot) {
+            throw new Error("Slot not found");
+        }
+        const booking = await tx.booking.create({
+            data: {
+                ...data,
+                status: BookingStatus.PENDING
+            }
+        });
+
+        if(!booking) {
+            throw new Error("Failed to create booking");
+        }
+
+        // update slot to mark as booked
+        await tx.slot.update({
+            where: { id: data.slotId },
+            data: { isBooked: true }
+        });
+
+        // update tutor's total earnings
+        
+
+        // await tx.tutorProfile.update({
+        //     where: { id: slot.tutorId },
+        //     data: {
+        //         totalEarned: {
+        //             increment: slot.slotPrice
+        //         }
+        //     }
+        // });
+        return booking;
+    });
+    return result;
 } 
 
 const getAllBookings = async (params:BookingSearchParams) => {
@@ -50,7 +99,15 @@ const getAllBookings = async (params:BookingSearchParams) => {
             AND: partials
         },
         include: {
-            student: true,
+            student: {
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                    profilePicture: true,
+                }
+            },
             slot: {
                 select: {
                     id: true,
@@ -63,7 +120,8 @@ const getAllBookings = async (params:BookingSearchParams) => {
                             id: true,
                             firstName: true,
                             lastName: true,
-                            email: true
+                            email: true,
+                            profilePicture: true,
                         }
                     }
                 }
@@ -91,7 +149,15 @@ const getBookingById = async (id:string) => {
     return await prisma.booking.findUnique({
         where: { id },
         include: {
-            student: true,
+            student: {
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                    profilePicture: true,
+                }
+            },
             slot: {
                 select: {
                     id: true,
@@ -113,30 +179,131 @@ const getBookingById = async (id:string) => {
     })
 }
 
-const getBookingsByStudentId = async (studentId: string) => {
-    return await prisma.booking.findMany({
-        where: { studentId },
+const getBookingsByStudentId = async (studentId: string, params: BookingSearchParams) => {
+    const partials: BookingWhereInput [] = [];
+    const {search, status, date, page =1, limit=10, sortBy, orderBy } = params;
+    if(search){
+        partials.push({
+            OR: [
+                {
+                    slot: {
+                        tutorProfile: {
+                            firstName: { contains: search, mode: "insensitive" }
+                        },
+                        subject: {
+                            name: { contains: search, mode: "insensitive" },
+
+                        }
+                    },
+                    
+                },
+               
+                
+            ]
+        })
+    }
+    if(status){
+        partials.push({status})
+    }
+    if(date){
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0,0,0,0);
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23,59,59,999);
+        partials.push({
+            createdAt: {
+                gte: startOfDay,
+                lte: endOfDay
+            }
+        })
+    }
+    partials.push({studentId})
+    const bookings =  await prisma.booking.findMany({
+        take: limit,
+        skip: (page - 1) * limit,
+        orderBy: {
+            [sortBy || 'createdAt']: orderBy === 'asc' ? 'asc' : 'desc'
+        },
+        where: {
+            AND: partials
+        },
         include: {
             slot: {
-                select:{
+                select: {
                     id: true,
-                    date: true,
+                    date: true, 
                     startTime: true,
                     endTime: true,
                     slotPrice: true,
                     tutorProfile: {
                         select: {
-                            id: true, 
+                            id: true,
                             firstName: true,
                             lastName: true,
                             email: true,
-                            profilePicture: true,
+                            profilePicture: true,   
                         }
                     }
                 }
+            },
+            student: {
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                    profilePicture: true,
+                }
             }
         }
-    })
+    });
+    // meta data for pagination
+    const totalCount = await prisma.booking.count({
+        where: {
+            AND: partials
+        }
+    });
+    return {
+        data: bookings,
+        pagination: {
+            page,
+            limit,
+            totalRecords: totalCount,
+            totalPages: Math.ceil(totalCount / limit)
+        }
+    }
+    // return await prisma.booking.findMany({
+    //     where: { studentId },
+    //     include: {
+    //         slot: {
+    //             select:{
+    //                 id: true,
+    //                 date: true,
+    //                 startTime: true,
+    //                 endTime: true,
+    //                 slotPrice: true,
+    //                 tutorProfile: {
+    //                     select: {
+    //                         id: true, 
+    //                         firstName: true,
+    //                         lastName: true,
+    //                         email: true,
+    //                         profilePicture: true,
+    //                     }
+    //                 }
+    //             }
+    //         },
+    //         student: {
+    //             select: {
+    //                 id: true,
+    //                 firstName: true,
+    //                 lastName: true,
+    //                 email: true,
+    //                 profilePicture: true,
+    //             }
+    //         }
+    //     }
+    // })
 }
 
 const confirmBooking = async (id: string) => {
@@ -246,6 +413,329 @@ const getBookingStats = async ()=> {
         bookingsByStatus,
     }
 }
+const upcomingBookings = async() => {
+    const bookings = await prisma.booking.findMany({
+        where: {
+            status: 'CONFIRMED',
+        },
+        include: {
+
+            student:{ select: { firstName: true, lastName: true } },
+            
+            slot: {
+                select: {
+                    date: true,
+                    startTime: true,
+                    endTime: true,
+                    tutorId: true,
+                    slotPrice: true,
+                    tutorProfile: {
+                        select: {
+                            id: true,
+                            firstName: true,
+                            lastName: true,
+                            email: true,
+                            profilePicture: true,
+                        }
+                    }
+                }
+            },
+            
+        }
+    })
+    const now = new Date();
+    const filteredBookings = bookings.filter((booking) => {
+        const slotDateTime = new Date(`${booking.slot.startTime}`);
+        return slotDateTime >= now;
+    });
+    return filteredBookings;
+}
+const deleteAllPastBookings = async() => {
+    const now = new Date();
+    await prisma.booking.deleteMany({
+        where: {
+            OR: [
+                {
+                    slot: {
+                        date: {
+                            lt: now
+                        }
+                    }
+                },
+                {
+                    AND: [
+                        {
+                            slot: {
+                                date: {
+                                    equals: now // same day
+                                }
+                            }
+                        },
+                        {
+                            slot: {
+                                endTime: {
+                                    lt: now.toTimeString().split(' ')[0] // past time
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    })
+}
+const getCompletedBookings = async () => {
+    const bookings = await prisma.booking.findMany({
+        where: {
+            status: 'COMPLETED',
+        },
+        include: {
+
+            student:{ select: { firstName: true, lastName: true } },
+            
+            slot: {
+                select: {
+                    date: true,
+                    startTime: true,
+                    endTime: true,
+                    tutorId: true,
+                    slotPrice: true
+                }
+            },
+            
+        }
+    })
+    return bookings;
+}
+
+// const getBookingByTutorId = async (tutorId: string) => {
+//     return await prisma.booking.findMany({
+//         where: {
+//             slot: {
+//                 tutorId
+//             }
+//         },
+//         include: {
+//             student: true,
+//             slot: true
+//         }
+//     })
+// }   
+const getBookingByTutorId = async (tutorId: string, params: BookingSearchParams) => {
+    const partials: BookingWhereInput [] = [];
+    const {search, status, date, page =1, limit=10, sortBy, orderBy } = params;
+    if(search){
+        partials.push({
+            OR: [
+                {
+                    slot: {
+                        tutorProfile: {
+                            firstName: { contains: search, mode: "insensitive" }
+                        },
+                        subject: {
+                            name: { contains: search, mode: "insensitive" },
+
+                        }
+                    },
+                    
+                },
+               
+                
+            ]
+        })
+    }
+    if(status){
+        partials.push({status})
+    }
+    if(date){
+        const startOfDay = new Date(date);
+        startOfDay.setHours(0,0,0,0);
+        const endOfDay = new Date(date);
+        endOfDay.setHours(23,59,59,999);
+        partials.push({
+            createdAt: {
+                gte: startOfDay,
+                lte: endOfDay
+            }
+        })
+    }
+    partials.push({
+        slot: {
+            tutorId
+        }
+    })
+    const bookings =  await prisma.booking.findMany({
+        take: limit,
+        skip: (page - 1) * limit,
+        orderBy: {
+            [sortBy || 'createdAt']: orderBy === 'asc' ? 'asc' : 'desc'
+        },
+        where: {
+            AND: partials
+        },
+        include: {
+            slot: {
+                select: {
+                    id: true,
+                    date: true, 
+                    startTime: true,
+                    endTime: true,
+                    slotPrice: true,
+                    tutorProfile: {
+                        select: {
+                            id: true,
+                            firstName: true,
+                            lastName: true,
+                            email: true,
+                            profilePicture: true,   
+                        }
+                    }
+                }
+            },
+            student: {
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    email: true,
+                    profilePicture: true,
+                }
+            }
+        }
+    });
+    // meta data for pagination
+    const totalCount = await prisma.booking.count({
+        where: {
+            AND: partials
+        }
+    });
+    return {
+        data: bookings,
+        pagination: {
+            page,
+            limit,
+            totalRecords: totalCount,
+            totalPages: Math.ceil(totalCount / limit)
+        }
+    }
+    // return await prisma.booking.findMany({
+    //     where: { studentId },
+    //     include: {
+    //         slot: {
+    //             select:{
+    //                 id: true,
+    //                 date: true,
+    //                 startTime: true,
+    //                 endTime: true,
+    //                 slotPrice: true,
+    //                 tutorProfile: {
+    //                     select: {
+    //                         id: true, 
+    //                         firstName: true,
+    //                         lastName: true,
+    //                         email: true,
+    //                         profilePicture: true,
+    //                     }
+    //                 }
+    //             }
+    //         },
+    //         student: {
+    //             select: {
+    //                 id: true,
+    //                 firstName: true,
+    //                 lastName: true,
+    //                 email: true,
+    //                 profilePicture: true,
+    //             }
+    //         }
+    //     }
+    // })
+}
+
+const getllPendingBookings = async ()=> {
+    return await prisma.booking.findMany({
+        where: {
+            status: 'PENDING',
+        },
+        include: {
+            student:{ select: { firstName: true, lastName: true } },
+            
+            slot: {
+                select: {
+                    date: true,
+                    startTime: true,
+                    endTime: true,
+                    tutorId: true,
+                    slotPrice: true,
+                    tutorProfile: {
+                        select: {
+                            id: true,
+                            firstName: true,
+                            lastName: true,
+                            email: true,
+                            profilePicture: true,
+                        }
+                    }
+                }
+            },
+            
+        }
+    })      
+}
+const getllPendingBookingsByTutorId = async (tutorId: string) => {
+    return await prisma.booking.findMany({
+        where: {
+            status: 'PENDING',
+            slot: {
+                tutorId
+            }
+        },
+        include: {
+            student:{ select: { firstName: true, lastName: true } },
+            
+            slot: {
+                select: {
+                    date: true,
+                    startTime: true,
+                    endTime: true,
+                    tutorId: true,
+                    slotPrice: true,
+                    tutorProfile: {
+                        select: {
+                            id: true,
+                            firstName: true,
+                            lastName: true,
+                            email: true,
+                            profilePicture: true,
+                        }
+                    }
+                }
+            },
+            
+        }
+    })      
+}
+
+// const deletePastBookingById = async(id:string) => {
+//     const now = new Date();
+//     const booking = await prisma.booking.findUnique({
+//         where: {id},
+//         include: { slot: true }
+//     });
+//     if(!booking) {
+//         throw new Error("Booking not found");
+//     }
+//     const slotDate = new Date(booking.slot.date);
+//     slotDate.setHours(0,0,0,0);
+//     const today = new Date(now);
+//     today.setHours(0,0,0,0);
+//     if(slotDate >= today) {
+//         throw new Error("Only past bookings can be deleted");
+//     }
+//     await prisma.booking.delete({
+//         where: {id}
+//     })
+// }
 export const bookingService = {
     createBooking,
     getBookingById,
@@ -254,6 +744,13 @@ export const bookingService = {
     completeBooking,
     updateStatus,
     getBookingsByStudentId,
-    getAllBookings
+    getAllBookings,
+    upcomingBookings,
+    getBookingStats,
+    getCompletedBookings,
+    deleteAllPastBookings,
+    getBookingByTutorId,
+    getllPendingBookings,
+    getllPendingBookingsByTutorId
 
 }

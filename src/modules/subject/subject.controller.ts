@@ -25,7 +25,7 @@ const createSubject = async(req: Request, res:Response) => {
 const getAllSubjects = async(req: Request, res:Response) => {
     try {
         const subjects =  await subjectService.getAllSubjects();
-        console.log("Fetched subjects:", subjects);
+        // console.log("Fetched subjects:", subjects);
 
         return res.status(200).json({success:true, data: subjects, error:null, message:"Subjects fetched successfully"});
     } catch (error) {

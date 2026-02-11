@@ -13,6 +13,7 @@ declare global{
                 role: string;
                 emailVerified: boolean;
                 status: "ACTIVE" | "BANNED" | "INACTIVE";
+                
                 isAssociate: boolean;
             }
         }

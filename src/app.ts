@@ -11,6 +11,9 @@ import notFoundMiddleware from "./middleware/404Route.middleware";
 import { categoryRouter } from "./modules/category/category.router";
 import subjectRouter from "./modules/subject/subject.router";
 import slotRouter from "./modules/slot/slot.router";
+import bookingRouter from "./modules/booking/booking.router";
+import adminRouter from "./modules/admin/admin.router";
+import userRouter from "./modules/user/user.router";
 
 
 const app:Application = express();
@@ -33,7 +36,9 @@ app.use("/api/v1/tutors", tutorRouter);
 app.use("/api/v1/categories", categoryRouter);
 app.use("/api/v1/subjects", subjectRouter)
 app.use("/api/v1/slots", slotRouter);
-
+app.use("/api/v1/bookings", bookingRouter);
+app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/users", userRouter)
 app.use(notFoundMiddleware);
 
 export default app;

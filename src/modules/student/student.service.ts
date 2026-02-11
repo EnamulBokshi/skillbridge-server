@@ -2,6 +2,7 @@ import { uuid } from "better-auth";
 import { generateId } from "../../helpers/idGenerator";
 import { prisma } from "../../lib/prisma";
 import { StudentRegistration } from "../../types";
+import { ReviewUncheckedCreateInput } from "../../../generated/prisma/models";
 
 
 const createStudent = async(payload: StudentRegistration)=>{
@@ -53,13 +54,6 @@ const getStudentById = async(id: string) => {
             },
             bookings: {
                 include: {
-                    tutorProfile: {
-                        select: {
-                            tid: true,
-                            firstName: true,
-                            lastName:true,
-                        }
-                    },
                     slot:true
                 }
             },
@@ -88,45 +82,64 @@ const studentStats = async (studentId: string) => {
             where: { studentId }
         });
 
-        const latestBooking = await tx.booking.findFirst({
+        const latestBooking = await tx.booking.findMany({
             where: { studentId },
             orderBy: { createdAt: 'desc' },
             include: {
-                tutorProfile: {
-                    select: {
-                        firstName:true,
-                        lastName: true,
-                        tid: true,
-                    }
-                },
                 slot: {
                     select: {
+                        tutorProfile:{
+                            select: {
+                                id: true,
+                                
+                                firstName: true,
+                                lastName: true,
+                                avgRating: true,
+                            }
+                        },
                         startTime: true,
                         endTime: true,
                         date: true,
                         id: true,
-                    }
+                        slotPrice: true
+                    },
+                
                 }
-            }
-        });
+            },
+            take: 5
+        },
+    );
+    const totalCompletedBookings = await tx.booking.count({
+        where: {
+            studentId,
+            status: "COMPLETED"
+        }
+    })
+    
+    const totalUpcomingBookings = await tx.booking.count({
+        where: {
+            studentId,
+            status: "CONFIRMED",
+        }
+    })
 
-        const totalTutors = await tx.booking.groupBy({
-            by: ['tutorId'],
-            where: { studentId },
-            _count: {
-                tutorId: true
-            }
-        })
-        const favoriteTutorId = totalTutors.sort((a, b) => b._count.tutorId - a._count.tutorId)[0];
-        const favoriteTutor = favoriteTutorId ? await tx.tutorProfile.findUnique({
-            where: { id: favoriteTutorId.tutorId },
-            select: {
-                tid: true,
-                firstName: true,
-                lastName: true,
-                avgRating: true,
-            }
-        }) : null;
+        // const totalTutors = await tx.booking.groupBy({
+        //     by: ['tutorId'],
+        //     where: { studentId },
+        //     _count: {
+        //         tutorId: true
+        //     }
+        // })
+        // const favoriteTutorId = totalTutors.sort((a, b) => b._count.tutorId - a._count.tutorId)[0];
+        // const favoriteTutor = favoriteTutorId ? await tx.tutorProfile.findUnique({
+        //     where: { id: favoriteTutorId.tutorId },
+        //     select: {
+        //         tid: true,
+        //         firstName: true,
+        //         lastName: true,
+        //         avgRating: true,
+        //     }
+        // }) : null;
 
 
         // const favoriteSubject = await tx.booking.groupBy({
@@ -138,8 +151,10 @@ const studentStats = async (studentId: string) => {
         });
         const data = {
             totalBookings,
+            totalCompletedBookings,
+            totalUpcomingBookings,
             latestBooking,
-            favoriteTutor,
+            // favoriteTutor,
             totalReviews
         }
         return data;
@@ -147,11 +162,57 @@ const studentStats = async (studentId: string) => {
     })
     return result;
 }
+const createReview = async (payload: ReviewUncheckedCreateInput) => {
+    const result = await prisma.$transaction(async(tx)=> {
+        // find the tutor profile
+        const tutorProfile = await tx.tutorProfile.findUnique({
+            where: { id: payload.tutorId }
+        });
+        if(!tutorProfile) {
+            throw new Error("Tutor profile not found");
+        }
+
+        // create the review
+        const review = await tx.review.create({
+            data: payload
+        });
+
+        // update tutor's avg rating and total reviews
+        const totalReviews = await tx.review.count({
+            where: { tutorId: payload.tutorId }
+        });
+
+        const sumRatingsResult = await tx.review.aggregate({
+            where: { tutorId: payload.tutorId },
+            _sum: { rating: true }
+        });
+
+        const sumRatings = sumRatingsResult._sum.rating || 0;
+        const avgRating = sumRatings / totalReviews;
+
+        await tx.tutorProfile.update({
+            where: { id: payload.tutorId },
+            data: {
+                avgRating,
+                totalReviews
+            }
+        });
+
+        return review;
+    }
+
+   );  
+   
+    return result
+}
+
+
 export const studentService = {
     createStudent,
     getStudentByStudentId,
     getStudentById,
     updateStudent,
     deleteStudent,
-    studentStats
+    studentStats,
+    createReview
 }

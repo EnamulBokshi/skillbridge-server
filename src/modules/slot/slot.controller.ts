@@ -39,7 +39,7 @@ const getSlots = async (req: Request, res: Response) => {
         
         const options = paginationSortHelper(filters)
         const isFree = req.query.isFree;
-        
+        // console.log(filters.search)
         const queryFilters = {...filters, ...options};
         
         const slots = await slotService.getSlots(queryFilters);
@@ -149,6 +149,23 @@ const updateSlot = async (req: Request, res: Response) => {
         errorResponse(res, 500, error, error.message || "Couldn't update slot!!");
     }
 }
+
+const getAllPastSlots = async (req: Request, res: Response) => {
+    try {
+        const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20;
+        const skip = req.query.skip ? parseInt(req.query.skip as string, 10) : 0;
+        const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+        console.log('its got hit')
+        const slots = await slotService.getAllPastSlots(limit, skip, page);
+        successResponse(res, 200, slots, "Past slots fetched successfully!!");
+    } catch (error:any) {
+        console.error(error);
+        errorResponse(res, 500, error, error.message || "Couldn't fetch past slots!!");
+    }
+};
+
+
+
 export const slotController = {
     createSlot,
     getSlots,
@@ -156,5 +173,6 @@ export const slotController = {
     markSlotAsBooked,
     markSlotAsUnbooked,
     deleteSlot,
-    updateSlot
+    updateSlot,
+    getAllPastSlots
 }

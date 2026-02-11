@@ -4,6 +4,22 @@ import { prisma } from "../../lib/prisma";
 const getUserById = async(userId: string) => {
     return await prisma.user.findUnique({
         where: { id: userId },
+        include: {
+            student: {
+                select: {
+                    id: true,
+                    lastName: true,
+                    firstName: true
+                }
+            },
+            tutorProfile: {
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true
+                }
+            }
+        }
         
     })
 }

@@ -4,6 +4,8 @@ import { studentService } from "./student.service";
 import { successResponse } from "../../helpers/successResponse";
 import { UserRole } from "../../constants/userRole";
 import { StudentRegistration } from "../../types";
+import { bookingService } from "../booking/booking.service";
+import { ReviewUncheckedCreateInput } from "../../../generated/prisma/models";
 
 const createStudent = async(req: Request, res:Response) => {
     try {
@@ -98,11 +100,67 @@ const studentStats = async (req: Request, res: Response) => {
         errorResponse(res, 500, error, error.message|| "Couldn't fetch student statistics!!")
     }
 }
+const getCompletedBookings = async (req: Request, res: Response) => {
+    try {
+        const { studentId } = req.params;
+        if (!studentId) {
+            return errorResponse(res, 400, null, "Student ID is required");
+        }
+        const completedBookings = await bookingService.getCompletedBookings();
+        const filteredBookings = completedBookings.filter(booking => booking.studentId === studentId);
+        successResponse(res, 200, filteredBookings, "Completed bookings fetched successfully!!");
+    } catch (error: any) {
+        console.error(error);
+        errorResponse(res, 500, error, error.message || "Couldn't fetch completed bookings!!");
+    }
+}
+
+const upcomingBookings = async (req: Request, res: Response) => {
+    try {
+        const { studentId } = req.params;
+        if (!studentId) {
+            return errorResponse(res, 400, null, "Student ID is required");
+        }
+        const bookings = await bookingService.upcomingBookings();
+        console.log("All Upcoming Bookings: ", bookings);
+        const filteredBookings = bookings.filter(booking => booking.studentId === studentId);
+        console.log("Filtered Bookings: ", filteredBookings);
+        successResponse(res, 200, filteredBookings, "Upcoming bookings fetched successfully!!");
+    } catch (error: any) {
+        console.error(error);
+        errorResponse(res, 500, error, error.message || "Couldn't fetch upcoming bookings!!");
+    }
+}
+const createReview = async (req: Request, res: Response) => {
+    try {
+        const { studentId } = req.params;
+        const { tutorId, rating, comment } = req.body;
+        if (!studentId || !tutorId || rating === undefined) {
+            return errorResponse(res, 400, null, "Student ID, Tutor ID and rating are required");
+        }
+        const reviewData: ReviewUncheckedCreateInput = {
+            studentId: studentId as string,
+            tutorId: tutorId as string,
+            rating: rating as number,
+            comment: comment as string | "",
+        };
+        const review = await studentService.createReview(reviewData);
+        successResponse(res, 201, review, "Review created successfully!!");
+    }
+    catch (error: any) {
+        console.error(error);
+        errorResponse(res, 500, error, error.message || "Couldn't create review!!");
+    }
+}
+
 
 export const studentController = {
     createStudent,
     getStudentByIdFullProfile,
     updateStudent,
     deleteStudent,
-    studentStats
+    studentStats,
+    getCompletedBookings,
+    upcomingBookings,
+    createReview
 }

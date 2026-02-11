@@ -49,6 +49,66 @@ export interface TutorRegistration{
     expertiseAreas: string[];
 }
 
+export interface TutorDetailedProfile {
+    id: string;
+    tid: string;
+    userId: string;
+    firstName: string;
+    lastName: string;
+    isFeatured: boolean;
+    profilePicture: string | null;
+    bio: string;
+    completedSessions: number;
+    experienceYears: number;
+    cv: string | null;
+    expertiseAreas: string[];
+    categoryId: string;
+    avgRating: number;
+    totalReviews: number;
+    totalEarned: number;
+    phone: string | null;
+    address: string | null;
+    email: string | null;
+    zip: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    user: {
+        id: string;
+        status: string | null;
+        email: string;
+        image: string | null;
+    };
+    category: {
+        id: string;
+        name: string;
+        slug: string;
+    };
+    slot: {
+        id: string;
+        date: Date;
+        startTime: Date;
+        endTime: Date;
+        subjectId: string;
+        slotPrice: number;
+        isBooked: boolean;
+        isFeatured: boolean;
+        isFree: boolean;
+        createdAt: Date;
+        updatedAt: Date;
+    }[];
+    reviews: {
+        id: string;
+        rating: number;
+        comment: string;
+        createdAt: Date;
+        student: {
+            id: string;
+            firstName: string | null;
+            lastName: string | null;
+        };
+    }[];
+}
+
 export interface Category{
     id?: string;
     name: string;
@@ -137,7 +197,7 @@ export interface ParamsType{
 }
 
 export interface SlotSearchParams extends ParamsType{
-    
+    isBooked?: boolean;
     isFeatured?: boolean;
     isFree?: boolean;
     tutorId? : string;
@@ -156,6 +216,15 @@ export interface BookingSearchParams extends ParamsType{
     startDate? : string;
     endDate?: string;
     date?: string;
+}
+
+export interface TutorSearchParams extends ParamsType{
+    isFeatured?: boolean;
+    categoryId?: string;
+    minRating?: number;
+    maxRating?: number;
+    minExperience?: number;
+    maxExperience?: number;
 }
 
 export interface PaginationMeta{
@@ -177,4 +246,9 @@ export interface CreateBookingPayload{
 
 export interface UpdateBookingPayload{
     status: "PENDING" | "CONFIRMED" | "CANCELLED";
+}
+
+export interface UserFilterParams extends ParamsType{
+    role?: "STUDENT" | "TUTOR" | "ADMIN";
+    status?: "ACTIVE" | "BANNED" | "INACTIVE";
 }
