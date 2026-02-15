@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { subjectService } from "./subject.service";
-import { errorResponse } from "../../helpers/errorResponse";
+import { subjectService } from "./subject.service.js";
+import { errorResponse } from "../../helpers/errorResponse.js";
 
 const createSubject = async(req: Request, res:Response) => {
     try {

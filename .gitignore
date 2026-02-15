@@ -4,6 +4,7 @@ node_modules/*
 .env
 .build
 
+dist
 /src/generated/prisma
 
 /src/generated/prisma

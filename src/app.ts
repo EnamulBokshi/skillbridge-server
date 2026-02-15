@@ -1,19 +1,19 @@
 // app 
 
 import express, { Application, Request, Response } from "express"
-import {auth} from './lib/auth';
+import {auth} from './lib/auth.js';
 import cors from "cors"
 import { toNodeHandler } from "better-auth/node";
-import studentRouter from "./modules/student/student.router";
-import logger from "./middleware/logger.middleware";
-import tutorRouter from "./modules/tutor/tutor.router";
-import notFoundMiddleware from "./middleware/404Route.middleware";
-import { categoryRouter } from "./modules/category/category.router";
-import subjectRouter from "./modules/subject/subject.router";
-import slotRouter from "./modules/slot/slot.router";
-import bookingRouter from "./modules/booking/booking.router";
-import adminRouter from "./modules/admin/admin.router";
-import userRouter from "./modules/user/user.router";
+import studentRouter from "./modules/student/student.router.js";
+import logger from "./middleware/logger.middleware.js";
+import tutorRouter from "./modules/tutor/tutor.router.js";
+import notFoundMiddleware from "./middleware/404Route.middleware.js";
+import { categoryRouter } from "./modules/category/category.router.js";
+import subjectRouter from "./modules/subject/subject.router.js";
+import slotRouter from "./modules/slot/slot.router.js";
+import bookingRouter from "./modules/booking/booking.router.js";
+import adminRouter from "./modules/admin/admin.router.js";
+import userRouter from "./modules/user/user.router.js";
 
 
 const app:Application = express();

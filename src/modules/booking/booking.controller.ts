@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { errorResponse } from "../../helpers/errorResponse";
-import { bookingService } from "./booking.service";
-import { successResponse } from "../../helpers/successResponse";
-import { BookingSearchParams } from "../../types";
-import { slotService } from "../slot/slot.service";
+import { errorResponse } from "../../helpers/errorResponse.js";
+import { bookingService } from "./booking.service.js";
+import { successResponse } from "../../helpers/successResponse.js";
+import { BookingSearchParams } from "../../types/index.js";
+import { slotService } from "../slot/slot.service.js";
 
 const createBooking = async(req: Request, res: Response) => {
     try {

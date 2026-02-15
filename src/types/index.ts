@@ -1,3 +1,5 @@
+import { BookingStatus } from "../generated/prisma/enums.js";
+
 export interface StudentRegistrationPayloadType {
         id? :string;
         sid?:string;
@@ -205,6 +207,7 @@ export interface SlotSearchParams extends ParamsType{
     startDate? : string;
     endDate?: string;
     date?: string;
+    isBookable?: boolean ;
 
 }
 
@@ -254,122 +257,90 @@ export interface UserFilterParams extends ParamsType{
 }
 
 export interface AdminDashboardStats {
-    users: {
-        total: number;
-        active: number;
-        banned: number;
-        byRole: Array<{
-            role: string | null;
-            _count: {
-                id: number;
-            };
-        }>;
-        recentSignups: number;
-        growthRate: number;
+  users: {
+    total: number;
+    active: number;
+    banned: number;
+  };
+
+  bookings: {
+    total: number;
+    completed: number;
+    cancelled: number;
+    pending: number;
+    recent: number; // last 30 days
+  };
+
+  revenue: {
+    total: number;
+    lastThirtyDays: number;
+  };
+
+  slots: {
+    total: number;
+    booked: number;
+    free: number;
+    available: number;
+  };
+
+  reviews: {
+    total: number;
+    averageRating: number;
+  };
+}
+
+
+export interface IUser {
+    id: string;
+    email: string;
+    password: string;
+    role: "STUDENT" | "TUTOR" | "ADMIN";
+    status: "ACTIVE" | "BANNED" | "INACTIVE";
+    isAssociate: boolean;
+    image: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface Booking{
+    id: string;
+    studentId: string;
+    slotId: string;
+    status: BookingStatus;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export type BookingWithDetails = (
+{
+    student: {
+        id: string;
+        firstName: string | null;
+        lastName: string | null;
+        profilePicture: string | null;
+        email: string | null;
     };
-    tutors: {
-        total: number;
-        featured: number;
-        topPerformer: {
+    slot: {
+        date: Date;
+        id: string;
+        startTime: Date;
+        endTime: Date;
+        slotPrice: number;
+        tutorProfile: {
             id: string;
             firstName: string;
             lastName: string;
-            completedSessions: number;
-            avgRating: number;
-        } | null;
-        topRated: Array<{
-            id: string;
-            firstName: string;
-            lastName: string;
-            avgRating: number;
-            totalReviews: number;
-            completedSessions: number;
-        }>;
-        totalEarnings: number;
-        averageEarnings: number;
-    };
-    students: {
-        total: number;
-        active: number;
-        topBooker: {
-            id: string;
-            firstName: string | null;
-            lastName: string | null;
-            completedSessions: number;
-            _count: {
-                bookings: number;
-            };
-        } | null;
-    };
-    bookings: {
-        total: number;
-        byStatus: Array<{
-            status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "REJECTED";
-            _count: {
-                id: number;
-            };
-        }>;
-        confirmed: number;
-        completed: number;
-        cancelled: number;
-        pending: number;
-        recent: number;
-        growthRate: number;
-    };
-    slots: {
-        total: number;
-        booked: number;
-        available: number;
-        featured: number;
-        free: number;
-        pricing: {
-            average: number;
-            minimum: number;
-            maximum: number;
-            total: number;
+            profilePicture: string | null;
+            email: string | null;
         };
     };
-    revenue: {
-        total: number;
-        lastThirtyDays: number;
-        averagePerBooking: number;
-    };
-    reviews: {
-        total: number;
-        averageRating: number;
-        ratingDistribution: Array<{
-            rating: number;
-            _count: {
-                id: number;
-            };
-        }>;
-        recent: number;
-    };
-    categories: {
-        total: number;
-        details: Array<{
-            id: string;
-            name: string;
-            _count: {
-                subject: number;
-                tutorProfile: number;
-            };
-        }>;
-    };
-    subjects: {
-        total: number;
-        active: number;
-        mostPopular: Array<{
-            id: string;
-            name: string;
-            creditHours: number;
-            _count: {
-                slots: number;
-                tutorSubject: number;
-            };
-        }>;
-    };
-    sessions: {
-        totalCompleted: number;
-    };
+} & Booking
+
+)
+
+export type UserUpdatePayload = {
+    email?: string;
+    name?: string;
+    image?: string;
+    emailVerified?: Date | null;
 }

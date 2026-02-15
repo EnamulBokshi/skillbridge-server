@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { errorResponse } from "../../helpers/errorResponse";
-import { successResponse } from "../../helpers/successResponse";
-import { userService } from "./user.service";
+import { errorResponse } from "../../helpers/errorResponse.js";
+import { successResponse } from "../../helpers/successResponse.js";
+import { userService } from "./user.service.js";
 
 // interface CustomRequest extends Request {
 //     user?: any;

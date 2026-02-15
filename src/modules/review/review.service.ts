@@ -1,5 +1,5 @@
-import {  ReviewUncheckedCreateInput } from "../../../generated/prisma/models";
-import { prisma } from "../../lib/prisma";
+import {  ReviewUncheckedCreateInput } from "../../generated/prisma/models.js";
+import { prisma } from "../../lib/prisma.js";
 const createReview = async (payload: ReviewUncheckedCreateInput) => {
     const result = await prisma.$transaction(async(tx)=> {
         // find the tutor profile

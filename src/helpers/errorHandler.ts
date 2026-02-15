@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response} from "express";
-import { Prisma } from "../../generated/prisma/client";
+import { Prisma } from "../generated/prisma/client.js";
 
 const errorHandler = async(err: any, req: Request, res: Response, next: NextFunction) =>{
     let errorMessage = "Internal Server Issue!";

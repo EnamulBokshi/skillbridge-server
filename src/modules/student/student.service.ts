@@ -1,8 +1,8 @@
 import { uuid } from "better-auth";
-import { generateId } from "../../helpers/idGenerator";
-import { prisma } from "../../lib/prisma";
-import { StudentRegistration } from "../../types";
-import { ReviewUncheckedCreateInput } from "../../../generated/prisma/models";
+import { generateId } from "../../helpers/idGenerator.js";
+import { prisma } from "../../lib/prisma.js";
+import { StudentRegistration } from "../../types/index.js";
+import { ReviewUncheckedCreateInput } from "../../generated/prisma/models.js";
 
 
 const createStudent = async(payload: StudentRegistration)=>{

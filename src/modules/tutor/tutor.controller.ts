@@ -1,13 +1,12 @@
 import { Request, Response } from "express";
-import { UserRole } from "../../constants/userRole";
-import { tutorService } from "./tutor.service";
-import { bookingService } from "../booking/booking.service";
-import { reviewService } from "../review/review.service";
-import { slotService } from "../slot/slot.service";
-import { errorResponse } from "../../helpers/errorResponse";
-import { successResponse } from "../../helpers/successResponse";
-import { BookingSearchParams, SlotSearchParams } from "../../types";
-import paginationSortHelper from "../../helpers/paginationHelper";
+import { tutorService } from "./tutor.service.js";
+import { bookingService } from "../booking/booking.service.js";
+import { reviewService } from "../review/review.service.js";
+import { slotService } from "../slot/slot.service.js";
+import { errorResponse } from "../../helpers/errorResponse.js";
+import { successResponse } from "../../helpers/successResponse.js";
+import { BookingSearchParams, SlotSearchParams } from "../../types/index.js";
+import paginationSortHelper from "../../helpers/paginationHelper.js";
 
 const createTutor = async(req: Request, res:Response) => {
     try {
@@ -29,7 +28,7 @@ const createTutor = async(req: Request, res:Response) => {
 
 const updateTutorProfile = async(req: Request, res: Response) => {
     try {
-        const tutorId = req.params.id;
+        const tutorId = req.params.tutorId;
         if(!tutorId) {
             return res.status(400).json({
                 success: false,
@@ -47,7 +46,7 @@ const updateTutorProfile = async(req: Request, res: Response) => {
 
 const getTutorById = async(req: Request, res: Response) => {
     try {
-        const tutorId = req.params.id;
+        const tutorId = req.params.tutorId;
         if(!tutorId) {
             return errorResponse(res, 400, null, "Tutor ID is required");
         }
@@ -100,13 +99,13 @@ const getTutorDashboardStats = async(req: Request, res: Response) => {
 // handle upcoming bookings 
 const getUpcomingBookings = async (req: Request, res: Response) => {
 try {
-        const tutorId = req.params.id;
+        const tutorId = req.params.tutorId;
         if(!tutorId) {
             return errorResponse(res, 400, null, "Tutor ID is required");
         }
         
         const bookings = await bookingService.upcomingBookings();
-        const filteredBookings = bookings.filter(booking => booking.slot.tutorId === tutorId);
+        const filteredBookings = bookings.filter((booking:any) => booking.slot.tutorId === tutorId);
         successResponse(res, 200, filteredBookings, "Upcoming bookings fetched successfully!!");
     } catch (error:any) {
         console.error(error);
@@ -117,13 +116,13 @@ try {
 // handle completed bookings
 const getCompletedBookings = async (req: Request, res: Response) => {
     try {
-        const tutorId = req.params.id;
+        const tutorId = req.params.tutorId;
         if(!tutorId) {
             return errorResponse(res, 400, null, "Tutor ID is required");
           
         }
         const bookings = await bookingService.getCompletedBookings();
-        const filteredBookings = bookings.filter(booking => booking.slot.tutorId === tutorId);
+        const filteredBookings = bookings.filter((booking:any) => booking.slot.tutorId === tutorId);
         successResponse(res, 200, filteredBookings, "Completed bookings fetched successfully!!");
     } catch (error:any) {
         console.error(error);
@@ -133,7 +132,7 @@ const getCompletedBookings = async (req: Request, res: Response) => {
 
 const getTutorReviews = async (req: Request, res: Response) => {
     try {
-        const tutorId = req.params.id;
+        const tutorId = req.params.tutorId;
         if(!tutorId) {
             return errorResponse(res, 400, null, "Tutor ID is required");
             
@@ -145,6 +144,7 @@ const getTutorReviews = async (req: Request, res: Response) => {
         errorResponse(res, 500, error, error.message || "Couldn't fetch tutor reviews!!")
     }
 }
+// ...existing code...
 const getTutorSlots = async (req: Request, res: Response) => {
     try {
         const tutorId = req.params.tutorId;
@@ -152,27 +152,27 @@ const getTutorSlots = async (req: Request, res: Response) => {
             return errorResponse(res, 400, null, "Tutor ID is required");
         }
         const pagi = paginationSortHelper(req.query);
-        const params:SlotSearchParams = {
-            date: req.query.date as string,
-            isBooked: req.query.isBooked ? req.query.isBooked === 'true' : undefined,
+
+        const params: SlotSearchParams = {
             page: pagi.page,
             limit: pagi.limit,
             skip: pagi.skip,
-            isFeatured: req.query.isFeatured ? req.query.isFeatured === 'true' : undefined,
-            isFree: req.query.isFree ? req.query.isFree === 'true' : undefined,
-            sortBy: req.query.sortBy as string || 'createdAt',
-            orderBy: req.query.orderBy as string || 'desc',
-            
-        }
+            sortBy: (req.query.sortBy as string) || "createdAt",
+            orderBy: (req.query.orderBy as string) || "desc",
+            ...(req.query.date ? { date: req.query.date as string } : {}),
+            ...(req.query.isBooked !== undefined ? { isBooked: req.query.isBooked === "true" } : {}),
+            ...(req.query.isFeatured !== undefined ? { isFeatured: req.query.isFeatured === "true" } : {}),
+            ...(req.query.isFree !== undefined ? { isFree: req.query.isFree === "true" } : {}),
+        };
+
         const slots = await slotService.getSlotsByTutorId(tutorId as string, params);
         successResponse(res, 200, slots, "Tutor slots fetched successfully!!");
-            
     } catch (error:any) {
         console.error(error);
         errorResponse(res, 500, error, error.message || "Couldn't fetch tutor slots!!");
-            
     }
 }
+// ...existing code...
 const deleteTutorSlot = async (req: Request, res: Response) => {
     try {
         
@@ -215,16 +215,15 @@ const getTutorBookings = async (req: Request, res: Response) => {
             return errorResponse(res, 400, null, "Tutor ID is required");
         }
         const params: BookingSearchParams = req.query;
-        const filters = {
-            status: params.status??undefined,
-            date: params.date,
-            search: params.search,
-            page: params.page,
-            limit: params.limit,
-            sortBy: params.sortBy,
-            orderBy: params.orderBy
-        }
-        const bookings = await bookingService.getBookingByTutorId(tutorId as string, filters);
+        const filters: Partial<BookingSearchParams> = {};
+        if(params.status !== undefined) filters.status = params.status;
+        if(params.date !== undefined) filters.date = params.date;
+        if(params.search !== undefined) filters.search = params.search;
+        if(params.page !== undefined) filters.page = params.page;
+        if(params.limit !== undefined) filters.limit = params.limit;
+        if(params.sortBy !== undefined) filters.sortBy = params.sortBy;
+        if(params.orderBy !== undefined) filters.orderBy = params.orderBy;
+        const bookings = await bookingService.getBookingByTutorId(tutorId as string, filters as BookingSearchParams);
         successResponse(res, 200, bookings, "Tutor bookings fetched successfully!!");
             
     } catch (error:any) {
@@ -257,17 +256,17 @@ const getTutors = async (req: Request, res: Response) => {
         const sortBy = req.query.sortBy as string || 'avgRating';
         const orderBy = req.query.orderBy as string || 'desc';
         
-        const tutors = await tutorService.getTutors({ 
+       const tutors = await tutorService.getTutors({ 
             limit, 
             skip, 
             page, 
-            isFeatured,
-            search,
-            categoryId,
-            minRating,
-            maxRating,
-            minExperience,
-            maxExperience,
+            ...(isFeatured !== undefined ? { isFeatured } : {}),
+            ...(search ? { search } : {}),
+            ...(categoryId ? { categoryId } : {}),
+            ...(minRating !== undefined ? { minRating } : {}),
+            ...(maxRating !== undefined ? { maxRating } : {}),
+            ...(minExperience !== undefined ? { minExperience } : {}),
+            ...(maxExperience !== undefined ? { maxExperience } : {}),
             sortBy,
             orderBy
         });

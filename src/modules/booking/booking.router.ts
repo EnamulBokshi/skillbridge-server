@@ -1,12 +1,12 @@
 import { Router } from "express";
-import { authMiddleware } from "../../middleware/auth.middleware";
-import { UserRole } from "../../constants/userRole";
-import privateRoute from "../../middleware/private.middleware";
-import { bookingController } from "./booking.controller";
+import { authMiddleware } from "../../middleware/auth.middleware.js";
+import { UserRole } from "../../constants/userRole.js";
+import privateRoute from "../../middleware/private.middleware.js";
+import { bookingController } from "./booking.controller.js";
 
 
 
-const bookingRouter = Router();
+const bookingRouter:Router = Router();
 
 // bookingRouter.get("/", )
 bookingRouter.post("/", authMiddleware(UserRole.STUDENT), privateRoute, bookingController.createBooking);

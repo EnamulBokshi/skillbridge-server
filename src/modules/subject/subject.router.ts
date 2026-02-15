@@ -1,9 +1,9 @@
 import  {Router} from "express";
-import { authMiddleware } from "../../middleware/auth.middleware";
-import { UserRole } from "../../constants/userRole";
-import { subjectController } from "./subject.controller";
+import { authMiddleware } from "../../middleware/auth.middleware.js";
+import { UserRole } from "../../constants/userRole.js";
+import { subjectController } from "./subject.controller.js";
 
-const subjectRouter = Router();
+const subjectRouter:Router = Router();
 
 subjectRouter.post("/", authMiddleware(UserRole.ADMIN), subjectController.createSubject );
 subjectRouter.get("/", subjectController.getAllSubjects);

@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
-import { errorResponse } from "../../helpers/errorResponse";
-import { slotService } from "./slot.service";
-import { successResponse } from "../../helpers/successResponse";
-import { ICreateSlotPayload, SlotSearchParams } from "../../types";
-import paginationSortHelper from "../../helpers/paginationHelper";
+import { errorResponse } from "../../helpers/errorResponse.js";
+import { slotService } from "./slot.service.js";
+import { successResponse } from "../../helpers/successResponse.js";
+import { ICreateSlotPayload, SlotSearchParams } from "../../types/index.js";
+import paginationSortHelper from "../../helpers/paginationHelper.js";
 
 
 const createSlot = async (req: Request, res: Response) => {
@@ -40,8 +40,10 @@ const getSlots = async (req: Request, res: Response) => {
         const options = paginationSortHelper(filters)
         const isFree = req.query.isFree;
         // console.log(filters.search)
-        const queryFilters = {...filters, ...options};
-        
+        let queryFilters = {...filters, ...options};
+        if(filters.isBookable !== undefined){
+            queryFilters = {...queryFilters, isBookable: filters.isBookable};
+        }
         const slots = await slotService.getSlots(queryFilters);
         
         successResponse(res, 200, slots, "Slots fetched successfully!!");

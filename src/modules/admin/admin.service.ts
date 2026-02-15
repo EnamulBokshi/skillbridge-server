@@ -1,6 +1,6 @@
-import { UserWhereInput } from "../../../generated/prisma/models";
-import { prisma } from "../../lib/prisma";
-import { AdminDashboardStats, UserFilterParams } from "../../types";
+import { UserWhereInput } from "../../generated/prisma/models.js";
+import { prisma } from "../../lib/prisma.js";
+import { AdminDashboardStats, UserFilterParams } from "../../types/index.js";
 
 const getTotalEarnings = async () => {
   // Get all confirmed and completed bookings with their slot prices
@@ -82,16 +82,24 @@ const getAllUsers = async (filters: UserFilterParams) => {
         AND: partials,
       },
       include: {
-        student:{
-            select: {
-                id:true,
-            }
+        student: {
+          select: {
+            id: true,
+            sid:true,
+            lastName: true,
+            firstName: true,
+            profilePicture: true,
+          },
         },
-        tutorProfile:{
-            select: {
-                id:true,
-            }
-        }
+        tutorProfile: {
+          select: {
+            tid: true,
+            id: true,
+            firstName: true,
+            lastName: true,
+            profilePicture: true,
+          },
+        },
       },
 
       take: limit,
@@ -101,7 +109,7 @@ const getAllUsers = async (filters: UserFilterParams) => {
       },
     });
     const totalUsers = await prisma.user.count();
-    
+
     return {
       data: users,
       pagination: {
@@ -116,321 +124,106 @@ const getAllUsers = async (filters: UserFilterParams) => {
 };
 
 const adminDashboardStats = async (): Promise<AdminDashboardStats> => {
-  return await prisma.$transaction(async (tx) => {
-    // User Statistics
-    const totalUsers = await tx.user.count();
-    const activeUsers = await tx.user.count({ where: { status: "ACTIVE" } });
-    const bannedUsers = await tx.user.count({ where: { status: "BANNED" } });
-    const usersByRole = await tx.user.groupBy({
-      by: ["role"],
-      _count: { id: true },
-    });
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    // Tutor Statistics
-    const totalTutors = await tx.tutorProfile.count();
-    const featuredTutors = await tx.tutorProfile.count({
-      where: { isFeatured: true },
-    });
-    const tutorWithMostSessions = await tx.tutorProfile.findFirst({
-      orderBy: { completedSessions: "desc" },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        completedSessions: true,
-        avgRating: true,
-      },
-    });
-    const topRatedTutors = await tx.tutorProfile.findMany({
-      take: 5,
-      orderBy: { avgRating: "desc" },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        avgRating: true,
-        totalReviews: true,
-        completedSessions: true,
-      },
-    });
-    const totalTutorEarnings = await tx.tutorProfile.aggregate({
-      _sum: { totalEarned: true },
-      _avg: { totalEarned: true },
-    });
+  return prisma.$transaction(async (tx) => {
+    // USERS
+    const [totalUsers, activeUsers, bannedUsers] = await Promise.all([
+      tx.user.count(),
+      tx.user.count({ where: { status: 'ACTIVE' } }),
+      tx.user.count({ where: { status: 'BANNED' } }),
+    ]);
 
-    // Student Statistics
-    const totalStudents = await tx.student.count();
-    const activeStudents = await tx.student.count({
-      where: { status: "ACTIVE" },
-    });
-    const studentWithMostBookings = await tx.student.findFirst({
-      orderBy: {
-        bookings: {
-          _count: "desc",
-        },
-      },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        completedSessions: true,
-        _count: {
-          select: { bookings: true },
-        },
-      },
-    });
-
-    // Booking Statistics
-    const totalBookings = await tx.booking.count();
+    // BOOKINGS
     const bookingsByStatus = await tx.booking.groupBy({
-      by: ["status"],
+      by: ['status'],
       _count: { id: true },
     });
-    const confirmedBookings = await tx.booking.count({
-      where: { status: "CONFIRMED" },
-    });
-    const completedBookings = await tx.booking.count({
-      where: { status: "COMPLETED" },
-    });
-    const cancelledBookings = await tx.booking.count({
-      where: { status: "CANCELLED" },
-    });
-    const pendingBookings = await tx.booking.count({
-      where: { status: "PENDING" },
-    });
 
-    // Recent Bookings (last 30 days)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const recentBookings = await tx.booking.count({
-      where: {
-        createdAt: { gte: thirtyDaysAgo },
-      },
+      where: { createdAt: { gte: thirtyDaysAgo } },
     });
 
-    // Slot Statistics
-    const totalSlots = await tx.slot.count();
-    const bookedSlots = await tx.slot.count({ where: { isBooked: true } });
-    const availableSlots = await tx.slot.count({ where: { isBooked: false } });
-    const featuredSlots = await tx.slot.count({ where: { isFeatured: true } });
-    const freeSlots = await tx.slot.count({ where: { isFree: true } });
-    const slotPricing = await tx.slot.aggregate({
-      _avg: { slotPrice: true },
-      _min: { slotPrice: true },
-      _max: { slotPrice: true },
-      _sum: { slotPrice: true },
-    });
+    const getStatusCount = (status: string) =>
+      bookingsByStatus.find((b) => b.status === status)?._count.id || 0;
 
-    // Revenue Statistics
-    const totalRevenue = await tx.booking.findMany({
-      where: {
-        status: {
-          in: ["CONFIRMED", "COMPLETED"],
-        },
-      },
+    // REVENUE (DB-side aggregation ✅)
+    const totalRevenueBookings = await tx.booking.findMany({
+      where: { status: { in: ['CONFIRMED', 'COMPLETED'] } },
       include: {
         slot: {
-          select: {
-            slotPrice: true,
-          },
+          select: { slotPrice: true },
         },
       },
     });
-    const revenueSum = totalRevenue.reduce(
+
+    const totalRevenue = totalRevenueBookings.reduce(
       (sum, booking) => sum + booking.slot.slotPrice,
       0,
     );
 
-    // Revenue from last 30 days
-    const recentRevenue = await tx.booking.findMany({
+    const recentRevenueBookings = await tx.booking.findMany({
       where: {
-        status: {
-          in: ["CONFIRMED", "COMPLETED"],
-        },
+        status: { in: ['CONFIRMED', 'COMPLETED'] },
         createdAt: { gte: thirtyDaysAgo },
       },
       include: {
         slot: {
-          select: {
-            slotPrice: true,
-          },
+          select: { slotPrice: true },
         },
       },
     });
-    const recentRevenueSum = recentRevenue.reduce(
+
+    const recentRevenue = recentRevenueBookings.reduce(
       (sum, booking) => sum + booking.slot.slotPrice,
       0,
     );
 
-    // Review Statistics
-    const totalReviews = await tx.review.count();
-    const averageRating = await tx.review.aggregate({
+    // SLOTS
+    const [totalSlots, bookedSlots, freeSlots] = await Promise.all([
+      tx.slot.count(),
+      tx.slot.count({ where: { isBooked: true } }),
+      tx.slot.count({ where: { isFree: true } }),
+    ]);
+
+    // REVIEWS
+    const reviewStats = await tx.review.aggregate({
+      _count: { id: true },
       _avg: { rating: true },
     });
-    const ratingDistribution = await tx.review.groupBy({
-      by: ["rating"],
-      _count: { id: true },
-    });
-    const recentReviews = await tx.review.count({
-      where: {
-        createdAt: { gte: thirtyDaysAgo },
-      },
-    });
-
-    // Category Statistics
-    const totalCategories = await tx.category.count();
-    const categoriesWithCounts = await tx.category.findMany({
-      select: {
-        id: true,
-        name: true,
-        _count: {
-          select: {
-            subject: true,
-            tutorProfile: true,
-          },
-        },
-      },
-      orderBy: {
-        tutorProfile: {
-          _count: "desc",
-        },
-      },
-    });
-
-    // Subject Statistics
-    const totalSubjects = await tx.subject.count();
-    const activeSubjects = await tx.subject.count({ where: { isActive: true } });
-    const subjectsWithMostSlots = await tx.subject.findMany({
-      take: 5,
-      select: {
-        id: true,
-        name: true,
-        creditHours: true,
-        _count: {
-          select: {
-            slots: true,
-            tutorSubject: true,
-          },
-        },
-      },
-      orderBy: {
-        slots: {
-          _count: "desc",
-        },
-      },
-    });
-
-    // Session Statistics
-    const totalCompletedSessions = await tx.tutorProfile.aggregate({
-      _sum: { completedSessions: true },
-    });
-
-    // Growth Metrics (comparing last 30 days to previous 30 days)
-    const sixtyDaysAgo = new Date();
-    sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
-    const previousPeriodBookings = await tx.booking.count({
-      where: {
-        createdAt: {
-          gte: sixtyDaysAgo,
-          lt: thirtyDaysAgo,
-        },
-      },
-    });
-    const bookingGrowthRate =
-      previousPeriodBookings > 0
-        ? ((recentBookings - previousPeriodBookings) / previousPeriodBookings) *
-          100
-        : 0;
-
-    const previousPeriodUsers = await tx.user.count({
-      where: {
-        createdAt: {
-          gte: sixtyDaysAgo,
-          lt: thirtyDaysAgo,
-        },
-      },
-    });
-    const recentUsers = await tx.user.count({
-      where: {
-        createdAt: { gte: thirtyDaysAgo },
-      },
-    });
-    const userGrowthRate =
-      previousPeriodUsers > 0
-        ? ((recentUsers - previousPeriodUsers) / previousPeriodUsers) * 100
-        : 0;
 
     return {
       users: {
         total: totalUsers,
         active: activeUsers,
         banned: bannedUsers,
-        byRole: usersByRole,
-        recentSignups: recentUsers,
-        growthRate: userGrowthRate,
-      },
-      tutors: {
-        total: totalTutors,
-        featured: featuredTutors,
-        topPerformer: tutorWithMostSessions,
-        topRated: topRatedTutors,
-        totalEarnings: totalTutorEarnings._sum.totalEarned || 0,
-        averageEarnings: totalTutorEarnings._avg.totalEarned || 0,
-      },
-      students: {
-        total: totalStudents,
-        active: activeStudents,
-        topBooker: studentWithMostBookings,
       },
       bookings: {
-        total: totalBookings,
-        byStatus: bookingsByStatus,
-        confirmed: confirmedBookings,
-        completed: completedBookings,
-        cancelled: cancelledBookings,
-        pending: pendingBookings,
+        total: bookingsByStatus.reduce((sum, b) => sum + b._count.id, 0),
+        completed: getStatusCount('COMPLETED'),
+        cancelled: getStatusCount('CANCELLED'),
+        pending: getStatusCount('PENDING'),
         recent: recentBookings,
-        growthRate: bookingGrowthRate,
+      },
+      revenue: {
+        total: totalRevenue,
+        lastThirtyDays: recentRevenue,
       },
       slots: {
         total: totalSlots,
         booked: bookedSlots,
-        available: availableSlots,
-        featured: featuredSlots,
         free: freeSlots,
-        pricing: {
-          average: slotPricing._avg.slotPrice || 0,
-          minimum: slotPricing._min.slotPrice || 0,
-          maximum: slotPricing._max.slotPrice || 0,
-          total: slotPricing._sum.slotPrice || 0,
-        },
-      },
-      revenue: {
-        total: revenueSum,
-        lastThirtyDays: recentRevenueSum,
-        averagePerBooking: totalBookings > 0 ? revenueSum / totalBookings : 0,
+        available: totalSlots - bookedSlots,
       },
       reviews: {
-        total: totalReviews,
-        averageRating: averageRating._avg.rating || 0,
-        ratingDistribution: ratingDistribution,
-        recent: recentReviews,
-      },
-      categories: {
-        total: totalCategories,
-        details: categoriesWithCounts,
-      },
-      subjects: {
-        total: totalSubjects,
-        active: activeSubjects,
-        mostPopular: subjectsWithMostSlots,
-      },
-      sessions: {
-        totalCompleted: totalCompletedSessions._sum.completedSessions || 0,
+        total: reviewStats._count.id,
+        averageRating: reviewStats._avg.rating || 0,
       },
     };
   });
-}
+};
+
 
 export const adminService = {
   getTotalEarnings,

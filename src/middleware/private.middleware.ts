@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { UserRole } from "../constants/userRole";
+import { UserRole } from "../constants/userRole.js";
 
 const privateRoute = async (
   req: Request,

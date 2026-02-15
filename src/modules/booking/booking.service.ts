@@ -1,7 +1,7 @@
-import { BookingStatus } from "../../../generated/prisma/enums";
-import { BookingCreateInput, BookingUncheckedCreateInput, BookingWhereInput, SlotWhereInput } from "../../../generated/prisma/models";
-import { prisma } from "../../lib/prisma";
-import { BookingSearchParams } from "../../types";
+import { BookingStatus } from "../../generated/prisma/enums.js";
+import { BookingCreateInput, BookingUncheckedCreateInput, BookingWhereInput, SlotWhereInput } from "../../generated/prisma/models.js";
+import { prisma } from "../../lib/prisma.js";
+import { BookingSearchParams } from "../../types/index.js";
 //TODO:* Create booking with PENDING status, then CONFIRMED upon payment success
 //* Admin and Tutor can APPROVE or REJECT booking - change status accordingly
 // * Cancel booking - change status to CANCELLED
@@ -64,7 +64,7 @@ const createBooking = async (data:BookingUncheckedCreateInput) => {
 
 const getAllBookings = async (params:BookingSearchParams) => {
     const partials: BookingWhereInput [] = [];
-    const { studentId, tutorId, slotId, status, date, page =1, limit=10, sortBy, orderBy } = params;
+    const { studentId, tutorId, slotId, status, date, page=1, limit=10, sortBy, orderBy } = params;
     if(status){
         partials.push({status})
     }
@@ -454,33 +454,11 @@ const deleteAllPastBookings = async() => {
     const now = new Date();
     await prisma.booking.deleteMany({
         where: {
-            OR: [
-                {
-                    slot: {
-                        date: {
-                            lt: now
-                        }
-                    }
-                },
-                {
-                    AND: [
-                        {
-                            slot: {
-                                date: {
-                                    equals: now // same day
-                                }
-                            }
-                        },
-                        {
-                            slot: {
-                                endTime: {
-                                    lt: now.toTimeString().split(' ')[0] // past time
-                                }
-                            }
-                        }
-                    ]
+            slot: {
+                endTime: {
+                    lt: now
                 }
-            ]
+            }
         }
     })
 }

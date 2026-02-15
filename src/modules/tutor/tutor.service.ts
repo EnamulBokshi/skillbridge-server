@@ -1,8 +1,8 @@
-import { BookingStatus } from "../../../generated/prisma/enums";
-import { TutorProfileWhereInput } from "../../../generated/prisma/models";
-import { generateId } from "../../helpers/idGenerator";
-import { prisma } from "../../lib/prisma";
-import { TutorRegistration, TutorSearchParams, TutorDetailedProfile } from "../../types";
+import { BookingStatus } from "../../generated/prisma/enums.js";
+import { TutorProfileWhereInput } from "../../generated/prisma/models.js";
+import { generateId } from "../../helpers/idGenerator.js";
+import { prisma } from "../../lib/prisma.js";
+import { TutorRegistration, TutorSearchParams, TutorDetailedProfile } from "../../types/index.js";
 
 // Tutor has right to know his/her total earning, total bookings, upcoming bookings, completed bookings, ratings, reviews, subjects taught, student list etc.
 
@@ -86,7 +86,8 @@ const getTutorById = async (tutorId: string): Promise<TutorDetailedProfile | nul
                 createdAt: true,
                 updatedAt: true
             }
-        }
+        },
+        
         
     }
   });

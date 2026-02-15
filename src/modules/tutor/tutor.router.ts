@@ -1,17 +1,18 @@
 import { Router } from "express";
-import { authMiddleware } from "../../middleware/auth.middleware";
-import { UserRole } from "../../constants/userRole";
-import privateRoute from "../../middleware/private.middleware";
-import { tutorController } from "./tutor.controller";
+import { authMiddleware } from "../../middleware/auth.middleware.js";
+import { UserRole } from "../../constants/userRole.js";
+import privateRoute from "../../middleware/private.middleware.js";
+import { tutorController } from "./tutor.controller.js";
 
-const tutorRouter = Router();
+const tutorRouter:Router = Router();
 
 // Public routes - must be before parameterized routes
 tutorRouter.get(
   "/",
   tutorController.getTutors
 );
-tutorRouter.get("/:id",tutorController.getTutorById)
+
+tutorRouter.get("/:tutorId",tutorController.getTutorById)
 
 // Protected routes
 tutorRouter.post(
@@ -29,16 +30,15 @@ tutorRouter.delete(
 
 tutorRouter.patch(
   "/:tutorId",
-  authMiddleware(UserRole.TUTOR),
-  privateRoute,
+  authMiddleware(UserRole.TUTOR, UserRole.ADMIN),
   tutorController.updateTutorProfile,
 );
-tutorRouter.get(
-  "/:tutorId",
-  authMiddleware(UserRole.ADMIN, UserRole.TUTOR),
-  privateRoute,
-  tutorController.getTutorById,
-);
+// tutorRouter.get(
+//   "/:tutorId",
+//   authMiddleware(UserRole.ADMIN, UserRole.TUTOR),
+  
+//   tutorController.getTutorById,
+// );
 
 
 tutorRouter.get(

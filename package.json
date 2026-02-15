@@ -2,12 +2,13 @@
   "name": "skill-bridge",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "npx tsx watch src/server.ts",
-    "seed:admin": "npx tsx  src/scripts/seedAdmin.ts"
-  },
+  "type": "module",
+"main": "dist/server.js",
+"scripts": {
+  "dev": "tsx watch src/server.ts",
+  "build": "tsc",
+  "start": "node dist/server.js"
+},
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -21,6 +22,7 @@
     "i": "^0.3.7",
     "nodemailer": "^7.0.12",
     "prisma": "^7.2.0",
+    "tsc-alias": "^1.8.16",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },

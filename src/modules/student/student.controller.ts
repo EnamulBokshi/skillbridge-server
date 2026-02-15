@@ -1,11 +1,11 @@
 import {Request,Response } from "express";
-import { errorResponse } from "../../helpers/errorResponse";
-import { studentService } from "./student.service";
-import { successResponse } from "../../helpers/successResponse";
-import { UserRole } from "../../constants/userRole";
-import { StudentRegistration } from "../../types";
-import { bookingService } from "../booking/booking.service";
-import { ReviewUncheckedCreateInput } from "../../../generated/prisma/models";
+import { errorResponse } from "../../helpers/errorResponse.js";
+import { studentService } from "./student.service.js";
+import { successResponse } from "../../helpers/successResponse.js";
+import { StudentRegistration } from "../../types/index.js";
+import { bookingService } from "../booking/booking.service.js";
+import { ReviewUncheckedCreateInput } from "../../generated/prisma/models.js";
+import { any } from "better-auth";
 
 const createStudent = async(req: Request, res:Response) => {
     try {
@@ -107,7 +107,7 @@ const getCompletedBookings = async (req: Request, res: Response) => {
             return errorResponse(res, 400, null, "Student ID is required");
         }
         const completedBookings = await bookingService.getCompletedBookings();
-        const filteredBookings = completedBookings.filter(booking => booking.studentId === studentId);
+        const filteredBookings = completedBookings.filter((booking: any) => booking.studentId === studentId);
         successResponse(res, 200, filteredBookings, "Completed bookings fetched successfully!!");
     } catch (error: any) {
         console.error(error);
@@ -123,7 +123,7 @@ const upcomingBookings = async (req: Request, res: Response) => {
         }
         const bookings = await bookingService.upcomingBookings();
         console.log("All Upcoming Bookings: ", bookings);
-        const filteredBookings = bookings.filter(booking => booking.studentId === studentId);
+        const filteredBookings = bookings.filter((booking: any) => booking.studentId === studentId);
         console.log("Filtered Bookings: ", filteredBookings);
         successResponse(res, 200, filteredBookings, "Upcoming bookings fetched successfully!!");
     } catch (error: any) {

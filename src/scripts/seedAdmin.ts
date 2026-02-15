@@ -1,6 +1,6 @@
 import "dotenv/config";
-import { UserRole } from "../constants/userRole";
-import { prisma } from "../lib/prisma";
+import { UserRole } from "../constants/userRole.js";
+import { prisma } from "../lib/prisma.js";
 
 
 async function seedAdmin(){

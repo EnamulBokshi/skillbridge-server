@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { errorResponse } from "../../helpers/errorResponse";
-import { categoryService } from "./category.service";
-import { successResponse } from "../../helpers/successResponse";
+import { errorResponse } from "../../helpers/errorResponse.js";
+import { categoryService } from "./category.service.js";
+import { successResponse } from "../../helpers/successResponse.js";
 
 const createCategory = async(req: Request, res:Response,next:NextFunction) => {
     try {

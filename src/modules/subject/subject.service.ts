@@ -1,5 +1,5 @@
-import { prisma } from "../../lib/prisma";
-import { Subject } from "../../types";
+import { prisma } from "../../lib/prisma.js";
+import { Subject } from "../../types/index.js";
 
 const createSubject = async(data: Subject) => {
     return await prisma.subject.create({data})   

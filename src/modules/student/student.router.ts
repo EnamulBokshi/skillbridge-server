@@ -1,11 +1,11 @@
 import { Router } from "express";
-import {authMiddleware} from "../../middleware/auth.middleware"
-import { UserRole } from "../../constants/userRole";
-import { studentController } from "./student.controller";
-import privateRoute from "../../middleware/private.middleware";
-import { bookingController } from "../booking/booking.controller";
+import {authMiddleware} from "../../middleware/auth.middleware.js"
+import { UserRole } from "../../constants/userRole.js";
+import { studentController } from "./student.controller.js";
+import privateRoute from "../../middleware/private.middleware.js";
+import { bookingController } from "../booking/booking.controller.js";
 
-const studentRouter = Router();
+const studentRouter:Router = Router();
 studentRouter.post("/", authMiddleware(UserRole.ADMIN, UserRole.USER),privateRoute, studentController.createStudent);
 studentRouter.get("/:studentId", authMiddleware(UserRole.ADMIN, UserRole.STUDENT, UserRole.TUTOR, UserRole.USER), studentController.getStudentByIdFullProfile);
 studentRouter.patch("/:studentId", authMiddleware(UserRole.ADMIN, UserRole.STUDENT),privateRoute, studentController.updateStudent);

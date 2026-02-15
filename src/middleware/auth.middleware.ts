@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
-import { UserRole } from "../constants/userRole";
-import { errorResponse } from "../helpers/errorResponse";
-import { auth } from "../lib/auth";
+import { UserRole } from "../constants/userRole.js";
+import { errorResponse } from "../helpers/errorResponse.js";
+import { auth } from "../lib/auth.js";
 
 declare global{
     namespace Express{

@@ -1,10 +1,9 @@
     import { Router } from "express";
-    import {userController} from "./user.controller";
-import { auth } from "../../lib/auth";
-import { authMiddleware } from "../../middleware/auth.middleware";
-import { UserRole } from "../../constants/userRole";
+    import {userController} from "./user.controller.js";
+import { authMiddleware } from "../../middleware/auth.middleware.js";
+import { UserRole } from "../../constants/userRole.js";
 
-const userRouter = Router();
+const userRouter:Router = Router();
 
 userRouter.get("/me", authMiddleware(UserRole.ADMIN, UserRole.STUDENT, UserRole.TUTOR, UserRole.USER), userController.getCurrentUser);
 userRouter.get("/:userId", authMiddleware(UserRole.ADMIN, UserRole.STUDENT, UserRole.TUTOR, UserRole.USER), userController.getUserById);

@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { prisma } from "./prisma";
-import transporter from "./nodeMailerTransport";
+import { prisma } from "./prisma.js";
+import transporter from "./nodeMailerTransport.js";
 
 const trustedOrigins = [
   process.env.APP_URL,

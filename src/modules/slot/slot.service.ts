@@ -1,6 +1,6 @@
-import { SlotWhereInput } from "../../../generated/prisma/models";
-import { prisma } from "../../lib/prisma";
-import { ICreateSlotPayload, SlotSearchParams } from "../../types";
+import { SlotWhereInput } from "../../generated/prisma/models.js";
+import { prisma } from "../../lib/prisma.js";
+import { ICreateSlotPayload, SlotSearchParams } from "../../types/index.js";
 //TODO: mark as booked, unbooked, date filter, tutor filter, subject filter, pagination, sorting, delete..
 const createSlot = async (slotData: ICreateSlotPayload) => {
   return await prisma.slot.create({
@@ -61,6 +61,16 @@ const getSlots = async (filters: SlotSearchParams) => {
       date: new Date(filters.date),
     });
   }
+
+  if(filters.isBookable !== undefined){
+    partials.push({
+      isBooked: false,
+      endTime: {
+        gt: new Date()
+      }
+    })
+  }
+
 
   const allSLots = await prisma.slot.findMany({
     take: filters.limit ? filters.limit : 10,
@@ -204,7 +214,7 @@ const getAllPastSlots = async (
             },
             {
               endTime: {
-                lt: now.toISOString().split(" ")[0], // past time
+                lt: now, // past time
               },
             },
           ],
@@ -372,7 +382,7 @@ const getAllPastSlotsByTutorId = async (
             },
             {
               endTime: {
-                lt: now.toISOString().split(" ")[0], // past time
+                lt: now, // past time
               },
             },
           ],

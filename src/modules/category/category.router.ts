@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { categoryController } from "./category.controller";
-import { authMiddleware } from "../../middleware/auth.middleware";
-import { UserRole } from "../../constants/userRole";
+import { categoryController } from "./category.controller.js";
+import { authMiddleware } from "../../middleware/auth.middleware.js";
+import { UserRole } from "../../constants/userRole.js";
 
-const categoryRouter = Router();
+const categoryRouter:Router = Router();
 
 categoryRouter.post("/", authMiddleware(UserRole.ADMIN), categoryController.createCategory);
 categoryRouter.get("/", categoryController.getAllCategories);
