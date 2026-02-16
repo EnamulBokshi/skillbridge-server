@@ -2,7 +2,11 @@ import { BookingStatus } from "../../generated/prisma/enums.js";
 import { TutorProfileWhereInput } from "../../generated/prisma/models.js";
 import { generateId } from "../../helpers/idGenerator.js";
 import { prisma } from "../../lib/prisma.js";
-import { TutorRegistration, TutorSearchParams, TutorDetailedProfile } from "../../types/index.js";
+import {
+  TutorRegistration,
+  TutorSearchParams,
+  TutorDetailedProfile,
+} from "../../types/index.js";
 
 // Tutor has right to know his/her total earning, total bookings, upcoming bookings, completed bookings, ratings, reviews, subjects taught, student list etc.
 
@@ -37,59 +41,58 @@ const updateTutorProfile = async (
   });
 };
 
-const getTutorById = async (tutorId: string): Promise<TutorDetailedProfile | null> => {
+const getTutorById = async (
+  tutorId: string,
+): Promise<TutorDetailedProfile | null> => {
   return await prisma.tutorProfile.findUnique({
     where: { id: tutorId },
     include: {
-        category:{
-            select: {
-                id: true,
-                name: true,
-                slug: true,
-
-            }
+      category: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
         },
-        user: {
-            select: {
-                id: true,
-                status: true,
-                image: true,
-                email: true,
-            }
+      },
+      user: {
+        select: {
+          id: true,
+          status: true,
+          image: true,
+          email: true,
         },
-        reviews: {
+      },
+      reviews: {
+        select: {
+          id: true,
+          rating: true,
+          comment: true,
+          createdAt: true,
+          student: {
             select: {
-                id: true,
-                rating: true,
-                comment: true,
-                createdAt: true,
-                student: {
-                    select: {
-                        id: true,
-                        firstName: true,
-                        lastName: true
-                    }
-                }
-            }
+              id: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
         },
-        slot: {
-            select: {
-                id: true,
-                date: true,
-                startTime: true,
-                endTime: true,
-                subjectId: true,
-                slotPrice: true,
-                isBooked: true,
-                isFeatured: true,
-                isFree: true,
-                createdAt: true,
-                updatedAt: true
-            }
+      },
+      slot: {
+        select: {
+          id: true,
+          date: true,
+          startTime: true,
+          endTime: true,
+          subjectId: true,
+          slotPrice: true,
+          isBooked: true,
+          isFeatured: true,
+          isFree: true,
+          createdAt: true,
+          updatedAt: true,
         },
-        
-        
-    }
+      },
+    },
   });
 };
 
@@ -101,7 +104,10 @@ const deleteTutor = async (tutorId: string) => {
 
 // tutor dashboard stats - total earnings, total bookings, upcoming bookings, completed bookings, ratings, reviews, subjects taught, student list etc.
 const getTutorDashboardStats = async (tutorId: string) => {
-  console.log("Fetching dashboard stats for tutor ID (server - service):", tutorId); // Debug log to check the tutor ID
+  console.log(
+    "Fetching dashboard stats for tutor ID (server - service):",
+    tutorId,
+  ); // Debug log to check the tutor ID
   const result = await prisma.$transaction(async (tx) => {
     const totalEarnings = await tx.tutorProfile.findUnique({
       where: { id: tutorId },
@@ -232,6 +238,7 @@ const getTutors = async (params: TutorSearchParams) => {
 
   // Search filter
   if (search) {
+    console.log('Search filter applied with value:', JSON.stringify(search));
     partials.push({
       OR: [
         {
@@ -257,6 +264,43 @@ const getTutors = async (params: TutorSearchParams) => {
             hasSome: [search],
           },
         },
+
+        {
+          slot: {
+            some: {
+              subject: {
+                OR: [
+                  {
+                    name: {
+                      contains: search,
+                      mode: "insensitive",
+                    },
+                  },
+                  {
+                    slug: {
+                      contains: search,
+                      mode: "insensitive",
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+
+        ...(!isNaN(Number(search)) && Number(search) > 0
+          ? [
+              {
+                slot: {
+                  some: {
+                    slotPrice: {
+                      equals: Number(search),
+                    },
+                  },
+                },
+              },
+            ]
+          : []),
       ],
     });
   }

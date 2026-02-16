@@ -1,3 +1,4 @@
+import { config } from "dotenv";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma.js";
@@ -6,11 +7,10 @@ import transporter from "./nodeMailerTransport.js";
 const trustedOrigins = [
   process.env.APP_URL,
   process.env.BETTER_AUTH_URL,
+  process.env.PROD_APP_URL,
   "http://localhost:3000",
   "http://localhost:5000",
 ].filter((origin): origin is string => Boolean(origin));
-
-
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -29,15 +29,17 @@ export const auth = betterAuth({
         defaultValue: "ACTIVE",
         required: false,
       },
-      isAssociate : {
+      isAssociate: {
         type: "boolean",
         defaultValue: false,
-        required: false
-      }
+        required: false,
+      },
     },
     image: {
-      defaultValue: process.env.DEFAULT_AVATAR_URL || "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
-    }
+      defaultValue:
+        process.env.DEFAULT_AVATAR_URL ||
+        "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y",
+    },
   },
   emailAndPassword: {
     enabled: true,
@@ -172,11 +174,10 @@ export const auth = betterAuth({
 </html>
 
                 
-                `
-        
+                `,
         });
         console.log("Verification email sent successfully");
-        console.log("info: ", info)
+        console.log("info: ", info);
       } catch (error) {
         console.error(error);
         throw error;
@@ -190,5 +191,25 @@ export const auth = betterAuth({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
+  },
+  
+  session: {
+    cookieCache: {
+      enabled: true,
+
+      maxAge: 5 * 60, // 5 minutes
+    },
+  },
+
+  advanced: {
+    cookiePrefix: "better-auth",
+
+    useSecureCookies: process.env.NODE_ENV === "production",
+
+    crossSubDomainCookies: {
+      enabled: false,
+    },
+
+    disableCSRFCheck: true, // Allow requests without Origin header (Postman, mobile apps, etc.)
   },
 });

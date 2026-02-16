@@ -241,8 +241,11 @@ const getTutors = async (req: Request, res: Response) => {
         // Filter parameters
         const isFeatured = req.query.isFeatured === 'true' ? true : 
                           req.query.isFeatured === 'false' ? false : undefined;
-        const search = req.query.search as string || '';
+        const search = (req.query.search as string)?.trim() || '';
         const categoryId = req.query.categoryId as string;
+        
+        // Debug log
+        console.log('Search parameter received:', JSON.stringify(search));
         
         // Rating filters
         const minRating = req.query.minRating ? parseFloat(req.query.minRating as string) : undefined;
@@ -252,6 +255,8 @@ const getTutors = async (req: Request, res: Response) => {
         const minExperience = req.query.minExperience ? parseInt(req.query.minExperience as string) : undefined;
         const maxExperience = req.query.maxExperience ? parseInt(req.query.maxExperience as string) : undefined;
         
+        const subjectId = req.query.subjectId as string;
+        const slug = req.query.slug as string;
         // Sorting parameters
         const sortBy = req.query.sortBy as string || 'avgRating';
         const orderBy = req.query.orderBy as string || 'desc';
@@ -268,7 +273,9 @@ const getTutors = async (req: Request, res: Response) => {
             ...(minExperience !== undefined ? { minExperience } : {}),
             ...(maxExperience !== undefined ? { maxExperience } : {}),
             sortBy,
-            orderBy
+            orderBy,
+            ...(subjectId ? { subjectId } : {}),
+            ...(slug ? { slug } : {}),
         });
         
         successResponse(res, 200, tutors, "Tutors fetched successfully!!");

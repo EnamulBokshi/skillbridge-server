@@ -77,7 +77,7 @@ const getAllUsers = async (filters: UserFilterParams) => {
     });
   }
   const result = await prisma.$transaction(async (tx) => {
-    const users = await prisma.user.findMany({
+    const users = await tx.user.findMany({
       where: {
         AND: partials,
       },
@@ -108,7 +108,7 @@ const getAllUsers = async (filters: UserFilterParams) => {
         [sortBy]: orderBy === "asc" ? "asc" : "desc",
       },
     });
-    const totalUsers = await prisma.user.count();
+    const totalUsers = await tx.user.count();
 
     return {
       data: users,
@@ -221,6 +221,8 @@ const adminDashboardStats = async (): Promise<AdminDashboardStats> => {
         averageRating: reviewStats._avg.rating || 0,
       },
     };
+  }, {
+
   });
 };
 
