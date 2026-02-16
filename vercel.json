@@ -2,21 +2,18 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/server.ts",
+      "src": "src/server.vercel.ts",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/auth/(.*)",
-      "dest": "src/server.ts"
+      "dest": "src/server.vercel.ts"
     },
     {
       "src": "/(.*)",
-      "dest": "src/server.ts"
+      "dest": "src/server.vercel.ts"
     }
-  ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  ]
 }
