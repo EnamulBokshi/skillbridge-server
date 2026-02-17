@@ -144,7 +144,7 @@ const getTutorReviews = async (req: Request, res: Response) => {
         errorResponse(res, 500, error, error.message || "Couldn't fetch tutor reviews!!")
     }
 }
-// ...existing code...
+
 const getTutorSlots = async (req: Request, res: Response) => {
     try {
         const tutorId = req.params.tutorId;
@@ -172,7 +172,7 @@ const getTutorSlots = async (req: Request, res: Response) => {
         errorResponse(res, 500, error, error.message || "Couldn't fetch tutor slots!!");
     }
 }
-// ...existing code...
+
 const deleteTutorSlot = async (req: Request, res: Response) => {
     try {
         
