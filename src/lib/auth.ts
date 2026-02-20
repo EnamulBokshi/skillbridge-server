@@ -192,7 +192,7 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
     },
   },
-  
+
   session: {
     cookieCache: {
       enabled: true,
@@ -209,7 +209,10 @@ export const auth = betterAuth({
     crossSubDomainCookies: {
       enabled: false,
     },
-
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true,
+    },
     disableCSRFCheck: true, // Allow requests without Origin header (Postman, mobile apps, etc.)
   },
 });

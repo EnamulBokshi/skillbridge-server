@@ -44,7 +44,26 @@ const createReview = async (payload: ReviewUncheckedCreateInput) => {
 const getReviewsByTutorId = async(tutorId: string) => {
     return await prisma.review.findMany({
         where: { tutorId },
-        orderBy: { createdAt: 'desc' }
+
+        include: {
+            student: {
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    profilePicture: true
+                }
+            },
+            tutor: {
+                select: {
+                    id: true,
+                    firstName: true,
+                    lastName: true,
+                    profilePicture: true
+                }
+            }
+        },
+        orderBy: { createdAt: 'desc' },
     });
 }
 

@@ -31,11 +31,11 @@ const authMiddleware = (...role: UserRole[])=> {
                 errorResponse(res, 401, null, 'Please logged in to access this resource');
                 return;
             }
-            if(!userSession.user.emailVerified){
-                console.error('Email is not verified');
-                errorResponse(res, 400, null, 'Please verify your email first!!');
-                return;
-            }
+            // if(!userSession.user.emailVerified){
+            //     console.error('Email is not verified');
+            //     errorResponse(res, 400, null, 'Please verify your email first!!');
+            //     return;
+            // }
             if(userSession.user.status === "BANNED"){
                 console.error('Your account has been banned. Please contact support.');
                 errorResponse(res, 403, null, 'Your account has been banned. Please contact support.');
