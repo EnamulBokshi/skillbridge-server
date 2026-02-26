@@ -13,6 +13,7 @@ const trustedOrigins = [
 ].filter((origin): origin is string => Boolean(origin));
 
 export const auth = betterAuth({
+  baseURL: process.env.BETTER_AUTH_URL,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -203,6 +204,7 @@ export const auth = betterAuth({
     },
     cookieCache: {
       enabled: true,
+      
       maxAge: 5 * 60, // 5 minutes
     },
     
