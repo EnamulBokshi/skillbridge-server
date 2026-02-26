@@ -194,11 +194,18 @@ export const auth = betterAuth({
   },
 
   session: {
+    sessionToken: {
+      attributes: {
+        secure: true,
+        httpOnly: true,
+        sameSite: "none",
+      },
+    },
     cookieCache: {
       enabled: true,
-
       maxAge: 5 * 60, // 5 minutes
     },
+    
   },
 
   advanced: {
