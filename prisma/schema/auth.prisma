@@ -13,6 +13,7 @@ model User {
   accounts      Account[]
   student       Student?
   tutorProfile  TutorProfile?
+  testimonials  Testimonial[]
 
 
   isAssociate Boolean? @default(false)

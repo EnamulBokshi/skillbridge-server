@@ -14,6 +14,9 @@ import slotRouter from "./modules/slot/slot.router.js";
 import bookingRouter from "./modules/booking/booking.router.js";
 import adminRouter from "./modules/admin/admin.router.js";
 import userRouter from "./modules/user/user.router.js";
+import AiRoute from "./modules/ai/ai.route.js";
+import statsRouter from "./modules/stats/stats.router.js";
+import testimonialRouter from "./modules/testimonial/testimonial.route.js";
 
 
 const app:Application = express();
@@ -96,6 +99,9 @@ app.use("/api/v1/slots", slotRouter);
 app.use("/api/v1/bookings", bookingRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/users", userRouter)
+app.use("/api/v1/ai", AiRoute);
+app.use("/api/v1/stats", statsRouter);
+app.use("/api/v1/testimonials", testimonialRouter);
 app.use(notFoundMiddleware);
 
 export default app;
