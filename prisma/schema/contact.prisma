@@ -1,0 +1,31 @@
+enum ContactStatus {
+  NEW
+  IN_REVIEW
+  REPLIED
+  CLOSED
+}
+
+model Contact {
+  id           String        @id @default(uuid())
+  name         String
+  email        String
+  subject      String
+  message      String        @db.Text
+  status       ContactStatus @default(NEW)
+
+  userId       String?
+  user         User?         @relation("ContactCreator", fields: [userId], references: [id], onDelete: SetNull)
+
+  adminReply   String?       @db.Text
+  repliedAt    DateTime?
+  repliedById  String?
+  repliedBy    User?         @relation("ContactReplier", fields: [repliedById], references: [id], onDelete: SetNull)
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([email])
+  @@index([status, createdAt])
+  @@index([userId])
+  @@map("contact")
+}

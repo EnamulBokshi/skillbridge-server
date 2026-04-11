@@ -42,6 +42,14 @@ export type ReviewSuggestionRequest = {
   count?: number;
 };
 
+export type SearchSuggestionContext = "all" | "tutors" | "subjects" | "slots" | "categories";
+
+export type SearchSuggestionRequest = {
+  query: string;
+  context?: SearchSuggestionContext;
+  limit?: number;
+};
+
 const asNumber = (value: unknown): number | undefined => {
   if (value === undefined || value === null || value === "") return undefined;
   const parsed = Number(value);
@@ -50,6 +58,16 @@ const asNumber = (value: unknown): number | undefined => {
 
 const isStringArray = (value: unknown): value is string[] => {
   return Array.isArray(value) && value.every((item) => typeof item === "string");
+};
+
+const isSearchSuggestionContext = (value: unknown): value is SearchSuggestionContext => {
+  return (
+    value === "all" ||
+    value === "tutors" ||
+    value === "subjects" ||
+    value === "slots" ||
+    value === "categories"
+  );
 };
 
 export const validateTutorRecommendationRequest = (
@@ -484,6 +502,74 @@ export const validateReviewSuggestionRequest = (
     rating,
     count,
   } satisfies ReviewSuggestionRequest;
+
+  next();
+};
+
+export const validateSearchSuggestionRequest = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const source = req.method === "GET" ? req.query : req.body;
+
+  const queryValue = typeof source.query === "string" ? source.query.trim() : "";
+  const contextValue = source.context;
+  const limitValue = asNumber(source.limit);
+
+  if (!queryValue) {
+    return res.status(400).json({
+      success: false,
+      message: "query is required",
+      data: null,
+    });
+  }
+
+  if (queryValue.length < 2) {
+    return res.status(400).json({
+      success: false,
+      message: "query must be at least 2 characters",
+      data: null,
+    });
+  }
+
+  if (queryValue.length > 80) {
+    return res.status(400).json({
+      success: false,
+      message: "query is too long (max 80 characters)",
+      data: null,
+    });
+  }
+
+  if (contextValue !== undefined && !isSearchSuggestionContext(contextValue)) {
+    return res.status(400).json({
+      success: false,
+      message: "context must be one of all, tutors, subjects, slots, categories",
+      data: null,
+    });
+  }
+
+  if (source.limit !== undefined && limitValue === undefined) {
+    return res.status(400).json({
+      success: false,
+      message: "limit must be a number",
+      data: null,
+    });
+  }
+
+  if (limitValue !== undefined && (!Number.isInteger(limitValue) || limitValue < 1 || limitValue > 10)) {
+    return res.status(400).json({
+      success: false,
+      message: "limit must be an integer between 1 and 10",
+      data: null,
+    });
+  }
+
+  req.body = {
+    query: queryValue,
+    ...(contextValue ? { context: contextValue } : {}),
+    ...(limitValue !== undefined ? { limit: limitValue } : {}),
+  } satisfies SearchSuggestionRequest;
 
   next();
 };

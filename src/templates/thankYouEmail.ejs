@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Welcome to SkillBridge</title>
+</head>
+<body style="margin:0; padding:0; background-color:#f1f5f9; font-family:Arial, Helvetica, sans-serif; color:#0f172a;">
+	<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f1f5f9; padding:24px 12px;">
+		<tr>
+			<td align="center">
+				<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:620px; background:#ffffff; border:1px solid #e2e8f0; border-radius:16px; overflow:hidden;">
+					<tr>
+						<td style="background:linear-gradient(135deg, #4f46e5, #06b6d4); padding:26px 24px; text-align:center;">
+							<h1 style="margin:0; font-size:24px; line-height:1.2; color:#ffffff; font-weight:700; letter-spacing:0.3px;">Welcome to SkillBridge</h1>
+							<p style="margin:10px 0 0; font-size:13px; line-height:1.5; color:#e2e8f0;">Your learning journey starts now</p>
+						</td>
+					</tr>
+
+					<tr>
+						<td style="padding:28px 24px 10px;">
+							<p style="margin:0 0 12px; font-size:16px; line-height:1.6; color:#334155;">Hello <strong style="color:#0f172a;"><%= user?.name || "Learner" %></strong>,</p>
+							<p style="margin:0; font-size:15px; line-height:1.7; color:#475569;">
+								Thank you for joining SkillBridge. We are excited to support your growth with expert tutors, flexible sessions, and practical learning paths.
+							</p>
+						</td>
+					</tr>
+
+					<tr>
+						<td style="padding:14px 24px 8px;">
+							<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px;">
+								<tr>
+									<td style="padding:14px 16px; font-size:14px; line-height:1.7; color:#475569;">
+										<strong style="color:#0f172a;">What you can do next:</strong>
+										<ul style="margin:8px 0 0 18px; padding:0;">
+											<li style="margin:0 0 6px;">Complete your profile to personalize recommendations.</li>
+											<li style="margin:0 0 6px;">Browse available tutors and skill-based sessions.</li>
+											<li style="margin:0;">Book your first class and start learning right away.</li>
+										</ul>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+
+					<tr>
+						<td align="center" style="padding:18px 24px 10px;">
+							<a
+								href="<%= dashboardUrl || appUrl || '#' %>"
+								style="display:inline-block; background:#4f46e5; color:#ffffff; text-decoration:none; font-size:15px; font-weight:700; padding:13px 24px; border-radius:10px;"
+							>
+								Go to My Dashboard
+							</a>
+						</td>
+					</tr>
+
+					<tr>
+						<td align="center" style="padding:6px 24px 18px;">
+							<a
+								href="<%= sessionsUrl || appUrl || '#' %>"
+								style="display:inline-block; color:#4f46e5; text-decoration:none; font-size:14px; font-weight:600;"
+							>
+								Explore Sessions
+							</a>
+						</td>
+					</tr>
+
+					<tr>
+						<td style="padding:0 24px 24px;">
+							<p style="margin:0; font-size:14px; line-height:1.7; color:#64748b;">
+								Need help getting started? Reach us at
+								<a href="mailto:<%= supportEmail || 'support@skillbridge.com' %>" style="color:#4f46e5; text-decoration:none;">
+									<%= supportEmail || 'support@skillbridge.com' %>
+								</a>
+								and our team will be happy to assist.
+							</p>
+							<p style="margin:16px 0 0; font-size:14px; line-height:1.6; color:#334155;">
+								Regards,<br />
+								<strong style="color:#0f172a;">SkillBridge Team</strong>
+							</p>
+						</td>
+					</tr>
+
+					<tr>
+						<td style="background:#f8fafc; border-top:1px solid #e2e8f0; padding:14px 16px; text-align:center;">
+							<p style="margin:0; font-size:12px; line-height:1.5; color:#94a3b8;">&copy; <%= new Date().getFullYear() %> SkillBridge. All rights reserved.</p>
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

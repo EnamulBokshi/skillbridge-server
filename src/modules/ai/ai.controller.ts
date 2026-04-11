@@ -8,6 +8,8 @@ import { TutorSearchParams } from "../../types/index.js";
 import { tutorService } from "../tutor/tutor.service.js";
 import {
   ReviewSuggestionRequest,
+  SearchSuggestionContext,
+  SearchSuggestionRequest,
   TutorBioWriterRequest,
   TutorRecommendationRequest,
 } from "./ai.validation.js";
@@ -395,6 +397,319 @@ const getReviewTone = (rating: number): string => {
   return "constructive and polite";
 };
 
+type SearchSuggestionSource = "tutor" | "subject" | "category" | "slot" | "template";
+
+type SearchSuggestionCandidate = {
+  text: string;
+  source: SearchSuggestionSource;
+  score: number;
+};
+
+const normalizeSearchSuggestion = (text: string): string => {
+  return text
+    .replace(/```/g, "")
+    .replace(/^"|"$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+};
+
+const isValidSearchSuggestion = (text: string): boolean => {
+  const words = text.split(/\s+/).filter(Boolean);
+  return text.length >= 2 && text.length <= 80 && words.length >= 1 && words.length <= 8;
+};
+
+const dedupeSuggestions = (items: string[]): string[] => {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const item of items) {
+    const normalized = normalizeSearchSuggestion(item);
+    if (!normalized) continue;
+    const key = normalized.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    result.push(normalized);
+  }
+
+  return result;
+};
+
+const buildSearchTemplates = (query: string, context: SearchSuggestionContext): string[] => {
+  const base = query.trim().replace(/\s+/g, " ");
+
+  const shared = [
+    `${base} tutor`,
+    `${base} tutoring`,
+    `${base} classes`,
+    `${base} subject`,
+    `${base} sessions`,
+    `best ${base} tutor`,
+    `find ${base} tutor`,
+  ];
+
+  const scoped: Record<SearchSuggestionContext, string[]> = {
+    all: [
+      `${base} tutors`,
+      `${base} lessons`,
+      `${base} learning`,
+    ],
+    tutors: [
+      `${base} tutors`,
+      `top ${base} tutors`,
+      `featured ${base} tutors`,
+    ],
+    subjects: [
+      `${base} subjects`,
+      `learn ${base}`,
+      `${base} course`,
+    ],
+    slots: [
+      `${base} slots`,
+      `free ${base} slots`,
+      `${base} available sessions`,
+    ],
+    categories: [
+      `${base} categories`,
+      `${base} category tutors`,
+      `${base} category classes`,
+    ],
+  };
+
+  return [...shared, ...scoped[context]];
+};
+
+const scoreSearchSuggestion = (query: string, item: SearchSuggestionCandidate): number => {
+  const queryLower = query.toLowerCase();
+  const textLower = item.text.toLowerCase();
+  let score = item.score;
+
+  if (textLower === queryLower) score += 120;
+  else if (textLower.startsWith(queryLower)) score += 90;
+  else if (textLower.includes(queryLower)) score += 60;
+
+  score += Math.max(0, 25 - item.text.length / 2);
+  return score;
+};
+
+const rankSearchSuggestions = (
+  query: string,
+  candidates: SearchSuggestionCandidate[],
+  limit: number,
+): string[] => {
+  const ranked = [...candidates]
+    .sort((a, b) => scoreSearchSuggestion(query, b) - scoreSearchSuggestion(query, a))
+    .map((item) => item.text);
+
+  return dedupeSuggestions(ranked).filter(isValidSearchSuggestion).slice(0, limit);
+};
+
+const collectSearchSuggestionCandidates = async (
+  query: string,
+  context: SearchSuggestionContext,
+): Promise<SearchSuggestionCandidate[]> => {
+  const normalizedQuery = query.trim();
+  const queryLike = { contains: normalizedQuery, mode: "insensitive" as const };
+  const candidates: SearchSuggestionCandidate[] = [];
+
+  const shouldUse = (scope: Exclude<SearchSuggestionContext, "all">) =>
+    context === "all" || context === scope;
+
+  if (shouldUse("categories")) {
+    const categories = await prisma.category.findMany({
+      where: {
+        OR: [
+          { name: queryLike },
+          { slug: queryLike },
+          { description: queryLike },
+        ],
+      },
+      take: 8,
+      select: {
+        name: true,
+        slug: true,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    for (const category of categories) {
+      candidates.push(
+        { text: category.name, source: "category", score: 82 },
+        { text: `${category.name} tutors`, source: "category", score: 78 },
+        { text: `${category.name} classes`, source: "category", score: 72 },
+        { text: `${category.name} subjects`, source: "category", score: 70 },
+      );
+    }
+  }
+
+  if (shouldUse("subjects")) {
+    const subjects = await prisma.subject.findMany({
+      where: {
+        OR: [
+          { name: queryLike },
+          { slug: queryLike },
+          { description: queryLike },
+        ],
+      },
+      take: 10,
+      select: {
+        name: true,
+        slug: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      orderBy: { name: "asc" },
+    });
+
+    for (const subject of subjects) {
+      candidates.push(
+        { text: subject.name, source: "subject", score: 88 },
+        { text: `${subject.name} tutor`, source: "subject", score: 84 },
+        { text: `${subject.name} classes`, source: "subject", score: 80 },
+        {
+          text: subject.category?.name
+            ? `${subject.category.name} ${subject.name}`
+            : `${subject.name} lessons`,
+          source: "subject",
+          score: 74,
+        },
+      );
+    }
+  }
+
+  if (shouldUse("tutors")) {
+    const tutors = await prisma.tutorProfile.findMany({
+      where: {
+        OR: [
+          { firstName: queryLike },
+          { lastName: queryLike },
+          { bio: queryLike },
+          {
+            category: {
+              OR: [
+                { name: queryLike },
+                { slug: queryLike },
+              ],
+            },
+          },
+        ],
+      },
+      take: 10,
+      select: {
+        firstName: true,
+        lastName: true,
+        avgRating: true,
+        isFeatured: true,
+        category: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      orderBy: [{ isFeatured: "desc" }, { avgRating: "desc" }],
+    });
+
+    for (const tutor of tutors) {
+      const fullName = `${tutor.firstName} ${tutor.lastName}`.trim();
+      candidates.push(
+        { text: fullName, source: "tutor", score: 90 },
+        { text: `${fullName} tutor`, source: "tutor", score: 86 },
+        {
+          text: tutor.category?.name ? `${fullName} ${tutor.category.name}` : `${fullName} lessons`,
+          source: "tutor",
+          score: tutor.isFeatured ? 84 : 78,
+        },
+      );
+    }
+  }
+
+  if (shouldUse("slots")) {
+    const slots = await prisma.slot.findMany({
+      where: {
+        OR: [
+          {
+            subject: {
+              OR: [
+                { name: queryLike },
+                { slug: queryLike },
+                { description: queryLike },
+              ],
+            },
+          },
+          {
+            tutorProfile: {
+              OR: [
+                { firstName: queryLike },
+                { lastName: queryLike },
+              ],
+            },
+          },
+        ],
+      },
+      take: 10,
+      select: {
+        isFree: true,
+        isFeatured: true,
+        subject: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+        tutorProfile: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+      orderBy: [{ isFeatured: "desc" }, { isFree: "desc" }],
+    });
+
+    for (const slot of slots) {
+      const tutorName = `${slot.tutorProfile.firstName} ${slot.tutorProfile.lastName}`.trim();
+      candidates.push(
+        { text: `${slot.subject.name} slots`, source: "slot", score: 84 },
+        { text: `${slot.subject.name} sessions`, source: "slot", score: 80 },
+        { text: slot.isFree ? `free ${slot.subject.name} slots` : `${slot.subject.name} tutor slots`, source: "slot", score: slot.isFeatured ? 82 : 76 },
+        { text: `${tutorName} ${slot.subject.name} session`, source: "slot", score: 72 },
+      );
+    }
+  }
+
+  candidates.push(
+    ...buildSearchTemplates(normalizedQuery, context).map((text) => ({
+      text,
+      source: "template" as const,
+      score: 42,
+    })),
+  );
+
+  return candidates;
+};
+
+const fallbackSearchSuggestions = (
+  query: string,
+  candidates: SearchSuggestionCandidate[],
+  limit: number,
+): string[] => {
+  const rankedCandidates = rankSearchSuggestions(query, candidates, limit);
+
+  if (rankedCandidates.length >= limit) {
+    return rankedCandidates.slice(0, limit);
+  }
+
+  const templateSuggestions = rankSearchSuggestions(
+    query,
+    buildSearchTemplates(query, "all").map((text) => ({ text, source: "template", score: 36 })),
+    limit,
+  );
+
+  return dedupeSuggestions([...rankedCandidates, ...templateSuggestions]).slice(0, limit);
+};
+
 const generateTutorBio = async (req: Request, res: Response) => {
   const payload = req.body as TutorBioWriterRequest;
 
@@ -523,6 +838,98 @@ Rules:
       success: false,
       data: null,
       message: "Failed to generate review suggestions",
+    });
+  }
+};
+
+const generateSearchSuggestions = async (req: Request, res: Response) => {
+  const payload = req.body as SearchSuggestionRequest;
+
+  const query = payload.query.trim();
+  const limit = Math.min(Math.max(payload.limit || 5, 1), 10);
+  const context: SearchSuggestionContext = payload.context || "all";
+
+  try {
+    const candidates = await collectSearchSuggestionCandidates(query, context);
+    const candidateTexts = dedupeSuggestions(candidates.map((candidate) => candidate.text));
+
+    const prompt = `
+Generate ${limit} search autocomplete suggestions for the SkillBridge tutoring platform.
+
+Rules:
+- Output strict JSON array of strings only.
+- Suggestions must be short search phrases, not full explanations.
+- Use only the user's query and the provided candidate phrases as inspiration.
+- Prefer phrases a student would realistically type next.
+- Avoid duplicates and keep each suggestion under 80 characters.
+- Do not invent private data, unavailable tutors, or unsupported features.
+`;
+
+    const aiResponse = await generateSkillBridgeResponse({
+      prompt,
+      context: JSON.stringify(
+        {
+          query,
+          context,
+          candidates: candidateTexts,
+        },
+        null,
+        0,
+      ),
+      maxOutputTokens: 240,
+    });
+
+    const queryLower = query.toLowerCase();
+    const allowedSuggestions = new Set([
+      ...candidateTexts.map((item) => item.toLowerCase()),
+      ...buildSearchTemplates(query, context).map((item) => item.toLowerCase()),
+    ]);
+
+    let suggestions = parseSuggestionArray(aiResponse)
+      .map(normalizeSearchSuggestion)
+      .filter(isValidSearchSuggestion)
+      .filter((item) => {
+        const lower = item.toLowerCase();
+        const matchesQuery = queryLower.split(/\s+/).some((part) => part.length > 1 && lower.includes(part));
+        return matchesQuery || allowedSuggestions.has(lower);
+      });
+
+    suggestions = dedupeSuggestions(suggestions);
+
+    if (suggestions.length < limit) {
+      suggestions = dedupeSuggestions([
+        ...suggestions,
+        ...fallbackSearchSuggestions(query, candidates, limit),
+      ]);
+    }
+
+    suggestions = suggestions.slice(0, limit);
+
+    return res.status(200).json({
+      success: true,
+      message: "Search suggestions generated successfully",
+      data: {
+        query,
+        context,
+        source: suggestions.length > 0 ? "hybrid" : "fallback",
+        suggestions,
+      },
+    });
+  } catch (error) {
+    console.error("Error generating search suggestions:", error);
+
+    const fallbackCandidates = await collectSearchSuggestionCandidates(query, context).catch(() => []);
+    const suggestions = fallbackSearchSuggestions(query, fallbackCandidates, limit);
+
+    return res.status(200).json({
+      success: true,
+      message: "Search suggestions generated successfully",
+      data: {
+        query,
+        context,
+        source: "fallback",
+        suggestions,
+      },
     });
   }
 };
@@ -786,4 +1193,5 @@ export const AiController = {
   getTutorRecommendations,
   generateTutorBio,
   generateReviewSuggestions,
+  generateSearchSuggestions,
 };

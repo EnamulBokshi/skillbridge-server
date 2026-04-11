@@ -14,6 +14,8 @@ model User {
   student       Student?
   tutorProfile  TutorProfile?
   testimonials  Testimonial[]
+  contactSubmissions Contact[] @relation("ContactCreator")
+  contactReplies     Contact[] @relation("ContactReplier")
 
 
   isAssociate Boolean? @default(false)

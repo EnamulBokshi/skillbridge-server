@@ -17,6 +17,8 @@ import userRouter from "./modules/user/user.router.js";
 import AiRoute from "./modules/ai/ai.route.js";
 import statsRouter from "./modules/stats/stats.router.js";
 import testimonialRouter from "./modules/testimonial/testimonial.route.js";
+import contactRouter from "./modules/contact/contact.route.js";
+import newsletterRouter from "./modules/newsletter/newslatter.route.js";
 
 
 const app:Application = express();
@@ -102,6 +104,8 @@ app.use("/api/v1/users", userRouter)
 app.use("/api/v1/ai", AiRoute);
 app.use("/api/v1/stats", statsRouter);
 app.use("/api/v1/testimonials", testimonialRouter);
+app.use("/api/v1/contacts", contactRouter);
+app.use("/api/v1/newsletters", newsletterRouter);
 app.use(notFoundMiddleware);
 
 export default app;

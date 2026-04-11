@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
 	validateAiChatRequest,
+	validateSearchSuggestionRequest,
 	validateReviewSuggestionRequest,
 	validateTutorBioWriterRequest,
 	validateTutorRecommendationRequest,
@@ -17,6 +18,12 @@ AiRoute.post(
 	AiController.generateChatResponse,
 );
 AiRoute.get("/models", AiController.getAvailableModels);
+AiRoute.get(
+	"/search-suggestions",
+	validateSearchSuggestionRequest,
+	aiChatRateLimit,
+	AiController.generateSearchSuggestions,
+);
 AiRoute.post(
 	"/tutor-recommendations",
 	validateTutorRecommendationRequest,

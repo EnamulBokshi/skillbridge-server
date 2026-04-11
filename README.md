@@ -1,6 +1,6 @@
 # SkillBridge Server
 
-> **A comprehensive online tutoring platform backend** - Connect students with qualified tutors for personalized learning sessions.
+> **Outcome-focused tutoring platform backend** for discovery, booking, trust, and conversion.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)](https://www.typescriptlang.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-green)](https://nodejs.org/)
@@ -11,6 +11,8 @@
 ## 📋 Table of Contents
 
 - [Overview](#overview)
+- [Value Proposition](#value-proposition)
+- [Most Valuable Features](#most-valuable-features)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
@@ -26,17 +28,61 @@
 
 ## 🎯 Overview
 
-SkillBridge is a modern, scalable RESTful API backend for an online tutoring platform. It enables seamless connections between students and tutors, facilitating scheduled learning sessions with comprehensive booking management, reviews, and real-time availability tracking.
+SkillBridge is a production-ready backend for a tutoring marketplace. It helps teams launch and scale core tutoring flows quickly: tutor discovery, slot booking, trust-building social proof, and intelligent assistance.
+
+It is designed to improve product outcomes:
+- Increase conversion from visitor to booked session with AI-assisted tutor discovery.
+- Improve learner confidence with transparent ratings, reviews, and testimonials.
+- Reduce operational overhead through role-based automation and admin controls.
+- Ship faster with modular APIs, strict validation, and Prisma-backed data access.
+
+## 💼 Value Proposition
+
+- **Faster MVP to market**: complete backend modules for auth, bookings, reviews, and admin operations.
+- **Conversion-oriented APIs**: AI recommendations, public landing stats, and testimonials support acquisition funnels.
+- **Operational control**: role-based authorization for Student, Tutor, and Admin workflows.
+- **Scalable architecture**: modular service/controller/router design with PostgreSQL + Prisma.
 
 ### Key Capabilities
 
-- **Multi-role Authentication**: Student, Tutor, and Admin roles with Better Auth
-- **Dynamic Scheduling**: Tutors create time slots; students book available sessions
-- **Category & Subject Management**: Organized learning paths with credit hours
-- **Booking System**: Complete lifecycle from pending to completed bookings
-- **Review System**: Student feedback and tutor ratings
-- **Admin Dashboard**: User management, booking oversight, and analytics
-- **Email Notifications**: Automated emails for bookings and account activities
+- **Acquisition**: public stats + testimonial APIs for landing pages
+- **Activation**: AI chat and recommendations to match learners with suitable tutors
+- **Transaction**: real-time slot discovery and booking lifecycle management
+- **Retention**: review and profile systems that improve tutor quality and trust
+- **Governance**: admin moderation and role-based access control
+
+## 🌟 Most Valuable Features
+
+### Tier 1: Growth and Conversion
+
+- **AI Chat for Tutor Discovery** (`POST /api/v1/ai/chat`)
+   - Answers only SkillBridge-relevant questions with filtered live context.
+   - Reduces drop-off by guiding users to actionable next steps.
+
+- **AI Tutor Recommendations** (`POST /api/v1/ai/tutor-recommendations`)
+   - Uses deterministic DB filtering first, then AI ranking.
+   - Balances relevance, speed, and token cost.
+
+- **Public Landing Metrics** (`GET /api/v1/stats`)
+   - Exposes students, tutors, slots/sessions, and subjects counts.
+   - Strengthens social proof on landing pages.
+
+### Tier 2: Trust and Content Quality
+
+- **Testimonials with Ownership Control** (`/api/v1/testimonials`)
+   - Publicly readable testimonials.
+   - Only owner or admin can update/delete; admin has full privileges.
+
+- **AI Writing Assistant**
+   - `POST /api/v1/ai/write/tutor-bio`
+   - `POST /api/v1/ai/write/review-suggestions`
+   - Speeds up profile quality and consistent review language.
+
+### Tier 3: Platform Reliability
+
+- **Role-based Security** with middleware-driven authorization.
+- **Structured modular architecture** for maintainability and team velocity.
+- **Rate-limited AI endpoints** to control abuse and usage cost.
 
 ## ✨ Features
 
@@ -45,6 +91,7 @@ SkillBridge is a modern, scalable RESTful API backend for an online tutoring pla
 - 🔍 Browse tutors by category, subject, and ratings
 - 📅 View available time slots and book sessions
 - ⭐ Rate and review completed sessions
+- 💬 Create personal testimonials visible on the landing page
 - 📊 Track booking history and completed sessions
 - 💬 Manage profile information and preferences
 
@@ -62,7 +109,15 @@ SkillBridge is a modern, scalable RESTful API backend for an online tutoring pla
 - 🏷️ Create and manage categories and subjects
 - 📋 Monitor and manage all bookings
 - 💰 Track platform earnings and tutor payouts
+- 🧾 Moderate all testimonials with full CRUD privileges
 - 🔒 Ban/Activate users and moderate content
+
+### AI-Powered Experience
+- 🤖 SkillBridge-only assistant with contextual responses
+- 🧠 Smart tutor matching with ranking reasons
+- ✍️ Tutor bio generator from profile data
+- ✍️ Review suggestion generator based on rating tone
+- 🚦 Abuse protection through per-user/IP AI rate limiting
 
 ## 🛠️ Tech Stack
 
@@ -250,7 +305,7 @@ PORT=5000
 
 ### Schema Overview
 
-The database consists of 9 main models:
+The database consists of core learning, scheduling, and trust models:
 
 #### Core Models
 - **User**: Authentication and base user data (Better Auth)
@@ -261,6 +316,7 @@ The database consists of 9 main models:
 - **Slot**: Tutor availability time slots
 - **Booking**: Student-tutor session bookings
 - **Review**: Student feedback on completed sessions
+- **Testimonial**: Public feedback displayed on marketing/landing pages
 - **TutorSubject**: Many-to-many relation between tutors and subjects
 
 ### Key Relationships
@@ -423,6 +479,32 @@ Handled by Better Auth - see [Better Auth Documentation](https://www.better-auth
 | `GET` | `/me` | ✅ Any | Get current user profile |
 | `PATCH` | `/me` | ✅ Any | Update current user |
 
+#### AI (`/api/v1/ai`)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `POST` | `/chat` | ✅ Any | Domain-aware assistant for tutors, slots, and platform questions |
+| `POST` | `/tutor-recommendations` | ✅ Any | Personalized tutor recommendations and ranked output |
+| `POST` | `/write/tutor-bio` | ✅ Any | Generate concise tutor bios from structured profile data |
+| `POST` | `/write/review-suggestions` | ✅ Any | Generate review text suggestions by rating tone |
+| `GET` | `/models` | - | List available Gemini models |
+
+#### Stats (`/api/v1/stats`)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/` | - | Public platform counters for landing page (students, tutors, slots, subjects) |
+
+#### Testimonials (`/api/v1/testimonials`)
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| `GET` | `/` | - | Public list of testimonials (paginated) |
+| `GET` | `/:id` | - | Public testimonial details |
+| `POST` | `/` | ✅ User/Student/Admin | Create testimonial |
+| `PATCH` | `/:id` | ✅ Owner/Admin | Update testimonial (owner only unless admin) |
+| `DELETE` | `/:id` | ✅ Owner/Admin | Delete testimonial (owner only unless admin) |
+
 ### Request/Response Examples
 
 #### Create Subject
@@ -522,6 +604,7 @@ server/
 │   │   ├── slot.prisma          # Slot model
 │   │   ├── booking.prisma       # Booking model
 │   │   ├── review.prisma        # Review model
+│   │   ├── testimonial.prisma   # Public testimonial model
 │   │   └── tutorSubject.prisma  # Junction table
 │   └── migrations/              # Migration history
 │
@@ -569,6 +652,9 @@ server/
 │   │   ├── slot/                # Slot management
 │   │   ├── booking/             # Booking management
 │   │   ├── review/              # Review management
+│   │   ├── ai/                  # AI assistant and writing endpoints
+│   │   ├── stats/               # Public landing-page stats endpoint
+│   │   ├── testimonial/         # Testimonial management with ownership checks
 │   │   └── user/                # User management
 │   │
 │   ├── scripts/                 # Utility scripts
