@@ -10,6 +10,12 @@ import {
 
 const newsletterRouter: Router = express.Router();
 
+newsletterRouter.get(
+	"/subscribers",
+	authMiddleware(UserRole.ADMIN),
+	newsletterController.getAllSubscribers,
+);
+
 newsletterRouter.post(
 	"/subscribe",
 	validateSubscribeNewsletter,

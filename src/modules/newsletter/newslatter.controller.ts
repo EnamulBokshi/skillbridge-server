@@ -70,8 +70,25 @@ const sendBulkNewsletterEmail = async (req: Request, res: Response) => {
 	}
 };
 
+const getAllSubscribers = async (_req: Request, res: Response) => {
+	try {
+		const subscribers = await newsletterService.getAllSubscribers();
+        console.log("Fetched subscribers:", subscribers);
+		return successResponse(
+			res,
+			200,
+			subscribers,
+			"Newsletter subscribers fetched successfully",
+		);
+	} catch (error) {
+		console.error("Error fetching newsletter subscribers:", error);
+		return errorResponse(res, 500, error, "Failed to fetch newsletter subscribers");
+	}
+};
+
 export const newsletterController = {
 	subscribeNewsletter,
 	unsubscribeNewsletter,
 	sendBulkNewsletterEmail,
+	getAllSubscribers,
 };

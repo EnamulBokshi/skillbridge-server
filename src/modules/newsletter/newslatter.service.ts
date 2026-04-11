@@ -168,8 +168,31 @@ const sendBulkNewsletterEmail = async (payload: SendBulkNewsletterPayload) => {
 	};
 };
 
+const getAllSubscribers = async () => {
+	return await prisma.newsletter.findMany({
+		where: {
+			isDeleted: false,
+            isSubscribed: true,
+            
+		},
+		orderBy: {
+			createdAt: "desc",
+		},
+		select: {
+			id: true,
+			name: true,
+			email: true,
+			isSubscribed: true,
+			unsubscribedAt: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	});
+};
+
 export const newsletterService = {
 	subscribeNewsletter,
 	unsubscribeNewsletter,
 	sendBulkNewsletterEmail,
+	getAllSubscribers,
 };
