@@ -241,7 +241,11 @@ const getTutors = async (req: Request, res: Response) => {
         // Filter parameters
         const isFeatured = req.query.isFeatured === 'true' ? true : 
                           req.query.isFeatured === 'false' ? false : undefined;
-        const search = (req.query.search as string)?.trim() || '';
+                const rawSearch = (req.query.search as string) || '';
+                const search = rawSearch
+                    .trim()
+                    .replace(/^["']+|["']+$/g, "")
+                    .trim();
         const categoryId = req.query.categoryId as string;
         
         // Debug log

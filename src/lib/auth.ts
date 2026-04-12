@@ -3,17 +3,29 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma.js";
 import transporter from "./nodeMailerTransport.js";
+import { randomUUID } from "node:crypto";
+import {
+  generateEmailVerificationOtp,
+  getEmailVerificationIdentifier,
+  getEmailVerificationOtpExpiryDate,
+  hashEmailVerificationOtp,
+} from "./emailVerificationOtp.js";
+
+const isProduction = process.env.NODE_ENV === "production";
+const publicAppUrl =
+  process.env.PROD_APP_URL || process.env.APP_URL || "http://localhost:3000";
 
 const trustedOrigins = [
   process.env.APP_URL,
-  process.env.BETTER_AUTH_URL,
   process.env.PROD_APP_URL,
+  publicAppUrl,
   "http://localhost:3000",
   "http://localhost:5000",
 ].filter((origin): origin is string => Boolean(origin));
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL,
+  // Keep auth callbacks/session origin aligned with the public client URL.
+  baseURL: process.env.BETTER_AUTH_URL || publicAppUrl,
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
@@ -45,7 +57,37 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
-    requireEmailVerification: false,
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, url, token }, request) => {
+      // Do not await to reduce timing-attack surface.
+      void transporter
+        .sendMail({
+          from: `" ${process.env.USER_NAME} " <${process.env.APP_USER}>`,
+          to: user.email,
+          subject: "Reset your SkillBridge password",
+          html: `
+            <div style="font-family: Arial, Helvetica, sans-serif; color: #111827; line-height: 1.5;">
+              <h2 style="margin-bottom: 8px;">Password reset request</h2>
+              <p>Hello ${user.name},</p>
+              <p>Click the button below to reset your password.</p>
+              <p style="margin: 20px 0;">
+                <a href="${url}" style="background:#2563eb;color:#fff;padding:12px 22px;text-decoration:none;border-radius:6px;display:inline-block;">
+                  Reset Password
+                </a>
+              </p>
+              <p>If the button does not work, use this link:</p>
+              <p style="word-break:break-all;">${url}</p>
+              <p>If you did not request this, you can safely ignore this email.</p>
+            </div>
+          `,
+        })
+        .catch((error) => {
+          console.error("Failed to send reset password email", error);
+        });
+    },
+    onPasswordReset: async ({ user }, request) => {
+      console.log(`Password for user ${user.email} has been reset.`);
+    },
   },
   emailVerification: {
     sendOnSignUp: true,
@@ -53,11 +95,28 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url, token }) => {
       console.log("Attempting to send verification email....!!");
       try {
-        const verificationUrl = `${process.env.APP_URL}/verify-email?token=${token}`;
+        const otp = generateEmailVerificationOtp();
+        const identifier = getEmailVerificationIdentifier(user.email);
+        const hashedOtp = hashEmailVerificationOtp(user.email, otp);
+        const expiresAt = getEmailVerificationOtpExpiryDate();
+
+        await prisma.verification.deleteMany({
+          where: { identifier },
+        });
+
+        await prisma.verification.create({
+          data: {
+            id: randomUUID(),
+            identifier,
+            value: hashedOtp,
+            expiresAt,
+          },
+        });
+
         const info = await transporter.sendMail({
           from: `" ${process.env.USER_NAME} " <${process.env.APP_USER}>`,
           to: user.email,
-          subject: "Verify your account!",
+          subject: "Your SkillBridge verification OTP",
           html: `
                 
                 <!DOCTYPE html>
@@ -65,7 +124,7 @@ export const auth = betterAuth({
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Email Verification</title>
+  <title>Email Verification OTP</title>
   <style>
     body {
       margin: 0;
@@ -133,32 +192,23 @@ export const auth = betterAuth({
 <body>
   <div class="container">
     <div class="header">
-      <h1>Email Verification</h1>
+      <h1>Email Verification OTP</h1>
     </div>
 
     <div class="content">
       <h2>Hello ${user.name}</h2>
       <p>
-        Thank you for registering with us. Please confirm your email address by
-        clicking the button below.
+        Thank you for registering with us. Use the OTP below to verify your
+        email address.
       </p>
 
       <div class="button-container">
-        <a href="${verificationUrl}" class="verify-button">
-          Verify Email
-        </a>
+        <span class="verify-button">${otp}</span>
       </div>
 
       <p>
-        If the button above doesn’t work, copy and paste the following link into
-        your browser:
-      </p>
-
-      <p class="link">${verificationUrl}</p>
-
-      <p>
-        This link will expire soon. If you did not create an account, you can
-        safely ignore this email.
+        This OTP will expire in 10 minutes. If you did not create an account,
+        you can safely ignore this email.
       </p>
 
       <p>
@@ -197,9 +247,9 @@ export const auth = betterAuth({
   session: {
     sessionToken: {
       attributes: {
-        secure: true,
+        secure: isProduction,
         httpOnly: true,
-        sameSite: "none",
+        sameSite: isProduction ? "none" : "lax",
       },
     },
     cookieCache: {
@@ -219,8 +269,8 @@ export const auth = betterAuth({
       enabled: false,
     },
     defaultCookieAttributes: {
-      sameSite: "none",
-      secure: true,
+      sameSite: isProduction ? "none" : "lax",
+      secure: isProduction,
     },
     disableCSRFCheck: true, // Allow requests without Origin header (Postman, mobile apps, etc.)
   },

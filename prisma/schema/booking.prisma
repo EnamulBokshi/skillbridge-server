@@ -16,6 +16,7 @@ model Booking{
     
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+    deletedAt DateTime? // Soft delete timestamp
     
     @@index([id, studentId, slotId])
     @@map("booking")

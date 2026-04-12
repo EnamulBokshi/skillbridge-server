@@ -202,11 +202,22 @@ const getTutors = async (params: TutorSearchParams) => {
     sortBy = "avgRating",
     orderBy = "desc",
     categoryId,
+    
     minRating,
     maxRating,
     minExperience,
     maxExperience,
   } = params;
+
+  const normalizedSearch = String(search || "")
+    .trim()
+    .replace(/^["']+|["']+$/g, "")
+    .trim();
+
+  const slugSearch = normalizedSearch
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 
   const partials: TutorProfileWhereInput[] = [];
 
@@ -237,31 +248,64 @@ const getTutors = async (params: TutorSearchParams) => {
   }
 
   // Search filter
-  if (search) {
-    console.log('Search filter applied with value:', JSON.stringify(search));
+  if (normalizedSearch) {
+    console.log('Search filter applied with value:', JSON.stringify(normalizedSearch));
+
+    const categorySlugFilters = [
+      {
+        slug: {
+          contains: normalizedSearch,
+          mode: "insensitive" as const,
+        },
+      },
+      ...(slugSearch && slugSearch !== normalizedSearch.toLowerCase()
+        ? [
+            {
+              slug: {
+                contains: slugSearch,
+                mode: "insensitive" as const,
+              },
+            },
+          ]
+        : []),
+    ];
+
     partials.push({
       OR: [
         {
           firstName: {
-            contains: search,
+            contains: normalizedSearch,
             mode: "insensitive",
           },
         },
         {
           lastName: {
-            contains: search,
+            contains: normalizedSearch,
             mode: "insensitive",
           },
         },
         {
           bio: {
-            contains: search,
+            contains: normalizedSearch,
             mode: "insensitive",
           },
         },
         {
           expertiseAreas: {
-            hasSome: [search],
+            hasSome: [normalizedSearch],
+          },
+        },
+        {
+          category: {
+            OR: [
+              {
+                name: {
+                  contains: normalizedSearch,
+                  mode: "insensitive",
+                },
+              },
+              ...categorySlugFilters,
+            ],
           },
         },
 
@@ -272,13 +316,13 @@ const getTutors = async (params: TutorSearchParams) => {
                 OR: [
                   {
                     name: {
-                      contains: search,
+                      contains: normalizedSearch,
                       mode: "insensitive",
                     },
                   },
                   {
                     slug: {
-                      contains: search,
+                      contains: normalizedSearch,
                       mode: "insensitive",
                     },
                   },
@@ -288,13 +332,13 @@ const getTutors = async (params: TutorSearchParams) => {
           },
         },
 
-        ...(!isNaN(Number(search)) && Number(search) > 0
+        ...(!isNaN(Number(normalizedSearch)) && Number(normalizedSearch) > 0
           ? [
               {
                 slot: {
                   some: {
                     slotPrice: {
-                      equals: Number(search),
+                      equals: Number(normalizedSearch),
                     },
                   },
                 },

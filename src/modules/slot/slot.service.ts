@@ -11,26 +11,100 @@ const createSlot = async (slotData: ICreateSlotPayload) => {
 const getSlots = async (filters: SlotSearchParams) => {
   const partials: SlotWhereInput[] = [];
   if (filters.search) {
+    const normalizedSearch = String(filters.search || "")
+      .trim()
+      .replace(/^["']+|["']+$/g, "")
+      .trim();
+
+    const slugSearch = normalizedSearch
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    const categorySlugFilters = [
+      {
+        slug: {
+          contains: normalizedSearch,
+          mode: "insensitive" as const,
+        },
+      },
+      ...(slugSearch && slugSearch !== normalizedSearch.toLowerCase()
+        ? [
+            {
+              slug: {
+                contains: slugSearch,
+                mode: "insensitive" as const,
+              },
+            },
+          ]
+        : []),
+    ];
+
     partials.push({
       OR: [
         {
           tutorProfile: {
-            firstName: {
-              contains: filters.search,
-              mode: "insensitive",
-            },
-            lastName: {
-              contains: filters.search,
-              mode: "insensitive",
-            },
+            OR: [
+              {
+                firstName: {
+                  contains: normalizedSearch,
+                  mode: "insensitive",
+                },
+              },
+              {
+                lastName: {
+                  contains: normalizedSearch,
+                  mode: "insensitive",
+                },
+              },
+            ],
           },
         },
         {
           subject: {
-            name: {
-              contains: filters.search,
-              mode: "insensitive",
-            },
+            OR: [
+              {
+                name: {
+                  contains: normalizedSearch,
+                  mode: "insensitive",
+                },
+              },
+              {
+                slug: {
+                  contains: normalizedSearch,
+                  mode: "insensitive" as const,
+                },
+              },
+              ...(slugSearch && slugSearch !== normalizedSearch.toLowerCase()
+                ? [
+                    {
+                      slug: {
+                        contains: slugSearch,
+                        mode: "insensitive" as const,
+                      },
+                    },
+                  ]
+                : []),
+              {
+                description: {
+                  contains: normalizedSearch,
+                  mode: "insensitive" as const,
+                },
+              },
+              {
+                category: {
+                  OR: [
+                    {
+                      name: {
+                        contains: normalizedSearch,
+                        mode: "insensitive",
+                      },
+                    },
+                    ...categorySlugFilters,
+                  ],
+                },
+              },
+            ],
           },
         },
       ],

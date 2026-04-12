@@ -405,6 +405,11 @@ type SearchSuggestionCandidate = {
   score: number;
 };
 
+type SearchQueryIntent = {
+  isNameLike: boolean;
+  hasGenericSearchTerms: boolean;
+};
+
 const normalizeSearchSuggestion = (text: string): string => {
   return text
     .replace(/```/g, "")
@@ -413,9 +418,97 @@ const normalizeSearchSuggestion = (text: string): string => {
     .trim();
 };
 
+const normalizeWords = (text: string): string[] => {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
+};
+
+const normalizeWordStem = (word: string): string => {
+  if (word.endsWith("ies") && word.length > 3) return `${word.slice(0, -3)}y`;
+  if (word.endsWith("es") && word.length > 3) return word.slice(0, -2);
+  if (word.endsWith("s") && word.length > 3) return word.slice(0, -1);
+  return word;
+};
+
+const hasNearDuplicateWords = (text: string): boolean => {
+  const words = normalizeWords(text).map(normalizeWordStem);
+  for (let index = 1; index < words.length; index += 1) {
+    if (words[index] === words[index - 1]) {
+      return true;
+    }
+  }
+  return false;
+};
+
+const containsWholeWord = (text: string, token: string): boolean => {
+  const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\b${escaped}\\b`, "i").test(text);
+};
+
+const GENERIC_SEARCH_TERMS = new Set([
+  "tutor",
+  "tutors",
+  "subject",
+  "subjects",
+  "slot",
+  "slots",
+  "session",
+  "sessions",
+  "class",
+  "classes",
+  "course",
+  "courses",
+  "best",
+  "top",
+  "featured",
+  "free",
+  "price",
+  "prices",
+  "cheap",
+  "category",
+  "categories",
+  "find",
+  "learn",
+  "learning",
+]);
+
+const detectSearchQueryIntent = (query: string): SearchQueryIntent => {
+  const words = normalizeWords(query);
+  const hasGenericSearchTerms = words.some((word) =>
+    GENERIC_SEARCH_TERMS.has(normalizeWordStem(word)),
+  );
+
+  const looksHumanName =
+    words.length >= 1 &&
+    words.length <= 3 &&
+    words.every((word) => /^[a-z]+$/.test(word) && word.length >= 2);
+
+  return {
+    isNameLike: looksHumanName && !hasGenericSearchTerms,
+    hasGenericSearchTerms,
+  };
+};
+
+const appendSuffixIfMissing = (base: string, suffix: string): string => {
+  const firstSuffixWord = suffix.split(/\s+/)[0]?.toLowerCase() || "";
+  if (firstSuffixWord && containsWholeWord(base, firstSuffixWord)) {
+    return base;
+  }
+  return `${base} ${suffix}`.trim();
+};
+
 const isValidSearchSuggestion = (text: string): boolean => {
   const words = text.split(/\s+/).filter(Boolean);
-  return text.length >= 2 && text.length <= 80 && words.length >= 1 && words.length <= 8;
+  return (
+    text.length >= 2 &&
+    text.length <= 80 &&
+    words.length >= 1 &&
+    words.length <= 8 &&
+    !hasNearDuplicateWords(text)
+  );
 };
 
 const dedupeSuggestions = (items: string[]): string[] => {
@@ -438,54 +531,73 @@ const buildSearchTemplates = (query: string, context: SearchSuggestionContext): 
   const base = query.trim().replace(/\s+/g, " ");
 
   const shared = [
-    `${base} tutor`,
-    `${base} tutoring`,
-    `${base} classes`,
-    `${base} subject`,
-    `${base} sessions`,
-    `best ${base} tutor`,
-    `find ${base} tutor`,
+    appendSuffixIfMissing(base, "tutor"),
+    appendSuffixIfMissing(base, "tutoring"),
+    appendSuffixIfMissing(base, "classes"),
+    appendSuffixIfMissing(base, "subject"),
+    appendSuffixIfMissing(base, "sessions"),
+    appendSuffixIfMissing(`best ${base}`.trim(), "tutor"),
+    appendSuffixIfMissing(`find ${base}`.trim(), "tutor"),
   ];
 
   const scoped: Record<SearchSuggestionContext, string[]> = {
     all: [
-      `${base} tutors`,
-      `${base} lessons`,
-      `${base} learning`,
+      appendSuffixIfMissing(base, "tutors"),
+      appendSuffixIfMissing(base, "lessons"),
+      appendSuffixIfMissing(base, "learning"),
     ],
     tutors: [
-      `${base} tutors`,
-      `top ${base} tutors`,
-      `featured ${base} tutors`,
+      appendSuffixIfMissing(base, "tutors"),
+      appendSuffixIfMissing(`top ${base}`.trim(), "tutors"),
+      appendSuffixIfMissing(`featured ${base}`.trim(), "tutors"),
     ],
     subjects: [
-      `${base} subjects`,
+      appendSuffixIfMissing(base, "subjects"),
       `learn ${base}`,
-      `${base} course`,
+      appendSuffixIfMissing(base, "course"),
     ],
     slots: [
-      `${base} slots`,
-      `free ${base} slots`,
-      `${base} available sessions`,
+      appendSuffixIfMissing(base, "slots"),
+      appendSuffixIfMissing(`free ${base}`.trim(), "slots"),
+      appendSuffixIfMissing(base, "available sessions"),
     ],
     categories: [
-      `${base} categories`,
-      `${base} category tutors`,
-      `${base} category classes`,
+      appendSuffixIfMissing(base, "categories"),
+      appendSuffixIfMissing(base, "category tutors"),
+      appendSuffixIfMissing(base, "category classes"),
     ],
   };
 
-  return [...shared, ...scoped[context]];
+  return dedupeSuggestions([...shared, ...scoped[context]]).filter(isValidSearchSuggestion);
 };
 
 const scoreSearchSuggestion = (query: string, item: SearchSuggestionCandidate): number => {
   const queryLower = query.toLowerCase();
   const textLower = item.text.toLowerCase();
+  const intent = detectSearchQueryIntent(query);
   let score = item.score;
 
   if (textLower === queryLower) score += 120;
   else if (textLower.startsWith(queryLower)) score += 90;
   else if (textLower.includes(queryLower)) score += 60;
+
+  if (intent.isNameLike) {
+    if (item.source === "tutor") score += 44;
+    if (item.source === "template") score -= 38;
+    if (item.source === "slot") score -= 10;
+    if (item.source === "subject" || item.source === "category") score -= 8;
+
+    const queryParts = normalizeWords(queryLower);
+    const textParts = normalizeWords(textLower);
+    const allPartsMatch = queryParts.every((part) => textParts.some((word) => word.startsWith(part)));
+    if (allPartsMatch) {
+      score += 26;
+    }
+  }
+
+  if (intent.hasGenericSearchTerms && item.source === "template") {
+    score -= 6;
+  }
 
   score += Math.max(0, 25 - item.text.length / 2);
   return score;
@@ -566,12 +678,12 @@ const collectSearchSuggestionCandidates = async (
     for (const subject of subjects) {
       candidates.push(
         { text: subject.name, source: "subject", score: 88 },
-        { text: `${subject.name} tutor`, source: "subject", score: 84 },
-        { text: `${subject.name} classes`, source: "subject", score: 80 },
+        { text: appendSuffixIfMissing(subject.name, "tutor"), source: "subject", score: 84 },
+        { text: appendSuffixIfMissing(subject.name, "classes"), source: "subject", score: 80 },
         {
           text: subject.category?.name
             ? `${subject.category.name} ${subject.name}`
-            : `${subject.name} lessons`,
+            : appendSuffixIfMissing(subject.name, "lessons"),
           source: "subject",
           score: 74,
         },
@@ -615,7 +727,7 @@ const collectSearchSuggestionCandidates = async (
       const fullName = `${tutor.firstName} ${tutor.lastName}`.trim();
       candidates.push(
         { text: fullName, source: "tutor", score: 90 },
-        { text: `${fullName} tutor`, source: "tutor", score: 86 },
+        { text: appendSuffixIfMissing(fullName, "tutor"), source: "tutor", score: 86 },
         {
           text: tutor.category?.name ? `${fullName} ${tutor.category.name}` : `${fullName} lessons`,
           source: "tutor",
@@ -848,20 +960,22 @@ const generateSearchSuggestions = async (req: Request, res: Response) => {
   const query = payload.query.trim();
   const limit = Math.min(Math.max(payload.limit || 5, 1), 10);
   const context: SearchSuggestionContext = payload.context || "all";
+  const queryIntent = detectSearchQueryIntent(query);
+  const includeDebug = process.env.NODE_ENV !== "production";
 
   try {
     const candidates = await collectSearchSuggestionCandidates(query, context);
     const candidateTexts = dedupeSuggestions(candidates.map((candidate) => candidate.text));
 
     const prompt = `
-Generate ${limit} search autocomplete suggestions for the SkillBridge tutoring platform.
+  Pick the best ${limit} search autocomplete suggestions for the SkillBridge tutoring platform.
 
 Rules:
 - Output strict JSON array of strings only.
-- Suggestions must be short search phrases, not full explanations.
-- Use only the user's query and the provided candidate phrases as inspiration.
-- Prefer phrases a student would realistically type next.
-- Avoid duplicates and keep each suggestion under 80 characters.
+  - Suggestions must be short search phrases, not full explanations.
+  - Use only phrases from the provided candidates list. Do not invent new words or entities.
+  - Prefer phrases a student would realistically type next.
+  - Avoid duplicates and keep each suggestion under 80 characters.
 - Do not invent private data, unavailable tutors, or unsupported features.
 `;
 
@@ -879,7 +993,6 @@ Rules:
       maxOutputTokens: 240,
     });
 
-    const queryLower = query.toLowerCase();
     const allowedSuggestions = new Set([
       ...candidateTexts.map((item) => item.toLowerCase()),
       ...buildSearchTemplates(query, context).map((item) => item.toLowerCase()),
@@ -888,11 +1001,7 @@ Rules:
     let suggestions = parseSuggestionArray(aiResponse)
       .map(normalizeSearchSuggestion)
       .filter(isValidSearchSuggestion)
-      .filter((item) => {
-        const lower = item.toLowerCase();
-        const matchesQuery = queryLower.split(/\s+/).some((part) => part.length > 1 && lower.includes(part));
-        return matchesQuery || allowedSuggestions.has(lower);
-      });
+      .filter((item) => allowedSuggestions.has(item.toLowerCase()));
 
     suggestions = dedupeSuggestions(suggestions);
 
@@ -913,6 +1022,16 @@ Rules:
         context,
         source: suggestions.length > 0 ? "hybrid" : "fallback",
         suggestions,
+        ...(includeDebug
+          ? {
+              debug: {
+                intent: queryIntent.isNameLike ? "name_like" : "generic",
+                hasGenericTerms: queryIntent.hasGenericSearchTerms,
+                candidateCount: candidateTexts.length,
+                aiParsedCount: parseSuggestionArray(aiResponse).length,
+              },
+            }
+          : {}),
       },
     });
   } catch (error) {
@@ -929,6 +1048,16 @@ Rules:
         context,
         source: "fallback",
         suggestions,
+        ...(includeDebug
+          ? {
+              debug: {
+                intent: queryIntent.isNameLike ? "name_like" : "generic",
+                hasGenericTerms: queryIntent.hasGenericSearchTerms,
+                candidateCount: fallbackCandidates.length,
+                aiParsedCount: 0,
+              },
+            }
+          : {}),
       },
     });
   }

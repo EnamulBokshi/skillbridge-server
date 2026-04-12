@@ -33,9 +33,19 @@ const createSlot = async (req: Request, res: Response) => {
         errorResponse(res, 500, error, "Couldn't create slot!!");
     }
 }
+
 const getSlots = async (req: Request, res: Response) => {
     try {
-        const filters:SlotSearchParams = req.query;
+        const rawSearch = (req.query.search as string) || '';
+        const search = rawSearch
+          .trim()
+          .replace(/^["']+|["']+$/g, "")
+          .trim();
+        
+        const filters: SlotSearchParams = {
+          ...req.query,
+          ...(search ? { search } : {}),
+        } as SlotSearchParams;
         
         const options = paginationSortHelper(filters)
         const isFree = req.query.isFree;

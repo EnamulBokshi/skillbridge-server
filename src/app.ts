@@ -23,12 +23,11 @@ import newsletterRouter from "./modules/newsletter/newslatter.route.js";
 
 const app:Application = express();
 const allowedOrigins = [
-
-  process.env.APP_URL || "http://localhost:3000",
-
-  process.env.PROD_APP_URL, // Production frontend URL
-
-].filter(Boolean); // Remove undefined values
+  process.env.APP_URL,
+  process.env.PROD_APP_URL,
+  "http://localhost:3000",
+  "https://skillbridge-client-dusky.vercel.app",
+].filter((origin): origin is string => Boolean(origin));
 
 
 app.use(express.json());
@@ -82,7 +81,19 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   cors({
-    origin: process.env.PROD_APP_URL || "https://skillbridge-client-dusky.vercel.app",
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
     credentials: true,
   })
 );

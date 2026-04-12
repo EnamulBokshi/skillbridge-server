@@ -224,6 +224,8 @@ export interface BookingSearchParams extends ParamsType{
 export interface TutorSearchParams extends ParamsType{
     isFeatured?: boolean;
     categoryId?: string;
+    categorySlug?: string;
+    categoryName?: string;
     minRating?: number;
     maxRating?: number;
     minExperience?: number;
